@@ -15,11 +15,11 @@ Remotes:
 Imports: 
     ggplot2,
     malariasimulation,
-    mockery,
     stats
 Suggests: 
     rmarkdown,
     knitr,
+    mockery,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3

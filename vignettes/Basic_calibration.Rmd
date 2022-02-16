@@ -49,12 +49,13 @@ tolerance is specified in the unit of the target variable. We also cheat a bit h
 and put a tight bound on the EIR to search to help speed up this code.
 
 ```{r}
+set.seed(123)
 out <- calibrate(parameters = parameters,
                  target = target,
                  target_tt = target_tt,
                  summary_function = summary_pfpr_2_10,
                  tolerance = 0.02, 
-                 interval = c(2, 4))
+                 interval = c(1, 6))
 ```
 
 Ok, we've calibrated. Lets run the calibrated model and see how we did.

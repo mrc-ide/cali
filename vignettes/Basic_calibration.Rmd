@@ -75,7 +75,7 @@ ggplot() +
 
 ```
 
-## Caveats
+## Tips and pointers!
 
 Note, in many situations it will not be possible to calibrate tightly to targets,
 especially over multiple time points. We are just changing the baseline EIR, 
@@ -83,3 +83,11 @@ so any trends in targets over time would need to be captured by other aspects of
 the simulation set up - for example intervention coverage. Don't expect to be able to
 match all data, you'll never match a trend of increasing prevalence over time if
 you model run has increasing intervention coverage over time too!
+
+If you are struggling to get the calibrate function to work, try checking:
+
+1. That your `summary_function` works. The easiest way to do this is to run a single
+model run with the same parameters and then run your `summary_function()` on the output.
+2. Check you're providing a reasonable `interval` (range of EIRs) and `tolerance` for fitting.
+3. Make sure you're familiar with the `stats::uniroot()` function and additional set-up and
+tuning arguments.

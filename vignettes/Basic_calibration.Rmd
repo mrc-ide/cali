@@ -40,7 +40,7 @@ We also need to set up all other aspects of our simulation. In this case, we wil
 set up a very basic model run:
 
 ```{r}
-parameters <- malariasimulation::get_parameters(list(human_population = 1000))
+parameters <- get_parameters(list(human_population = 1000))
 ```
 
 Now time for the calibration. Here we set the tolerance to 0.02. This means that
@@ -61,8 +61,8 @@ out <- calibrate(parameters = parameters,
 Ok, we've calibrated. Lets run the calibrated model and see how we did.
 
 ```{r}
-parameters <- malariasimulation::set_equilibrium(parameters, init_EIR = out$root)
-raw <- malariasimulation::run_simulation(timesteps = max(target_tt) + 100, parameters = parameters)
+parameters <- set_equilibrium(parameters, init_EIR = out$root)
+raw <- run_simulation(timesteps = max(target_tt) + 100, parameters = parameters)
 pfpr <- summary_pfpr_2_10(raw)
 
 pd <- data.frame(time = 1:(max(target_tt) + 100), pfpr = pfpr)

@@ -6,7 +6,7 @@
 #' @param parameters Other malariasimulation model parameters
 #' @param target Values of target variable to calibrate to.
 #' @param target_tt Timesteps of target.
-#' @param summary_function A function that produces the a vector of the target variable.
+#' @param summary_function A function that produces a vector of the target variable.
 #' @param tolerance The average tolerance, in target variable units, with which to match target.
 #'
 #' @return Difference between output and target.

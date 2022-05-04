@@ -121,7 +121,7 @@ fit_spline <- function(sim_data, target){
                  ifelse(length(target) > 1,
                         paste0(" + s(prev",
                                2:length(target),
-                               ")"), ""))
+                               ")", collapse = ""), ""))
   
   # Fit spline model
   m <- mgcv::gam(data = dat, formula = as.formula(form))
@@ -140,6 +140,12 @@ fit_spline <- function(sim_data, target){
     tar_df <- pred_df[1,]
     tar_df[1, ] <- boot::logit(target)
     pred_df <- rbind(pred_df, tar_df)
+  }else if(length(target) > 2){
+    pred_df <- as.data.frame(matrix(boot::logit(target), 
+                      nrow = 1, 
+                      ncol = length(target), 
+                      byrow = TRUE))
+    colnames(pred_df) <- cols
   }
   
   # Generate simultaneous confidence intervals

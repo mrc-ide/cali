@@ -88,6 +88,9 @@ run_simulations <- function(parameters, target, target_tt, test_EIRs, ncores, su
   # Can't have fully 0 prevalence into logit model
   out[prev == 0, prev := 0.005]
   
+  # Turn off clusters
+  parallel::stopCluster(cl = my.cluster)
+  
   return(out)
 }
 

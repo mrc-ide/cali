@@ -131,20 +131,21 @@ fit_spline <- function(sim_data, target){
   
   # Generate prevalence values to predict starting_EIR for
   xseq <- boot::logit(seq(min(sim_data$prev), max(sim_data$prev), 0.01))
+  targ <- ifelse(target == 0, 0.0001)
   
   if(length(target) == 1){
     pred_df <- data.frame(prev1 = xseq)
     # Add specific prediction values to the end of the data.frame
-    pred_df <- rbind(pred_df, data.frame(prev1 = boot::logit(target)))
+    pred_df <- rbind(pred_df, data.frame(prev1 = boot::logit(targ)))
   }else if(length(target)  == 2){
     pred_df <- data.frame(expand.grid(xseq, xseq))
     colnames(pred_df) <- cols
     # Add specific prediction values to the end of the data.frame
     tar_df <- pred_df[1,]
-    tar_df[1, ] <- boot::logit(target)
+    tar_df[1, ] <- boot::logit(targ)
     pred_df <- rbind(pred_df, tar_df)
   }else if(length(target) > 2){
-    pred_df <- as.data.frame(matrix(boot::logit(target), 
+    pred_df <- as.data.frame(matrix(boot::logit(targ), 
                       nrow = 1, 
                       ncol = length(target), 
                       byrow = TRUE))

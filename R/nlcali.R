@@ -196,28 +196,29 @@ fit_spline <- function(sim_data, target){
 #' @return
 #' @export
 #' @importFrom scoringutils crps_sample
-#' @data.table data.table
+#' @importFrom data.table as.data.table
+#' @importFrom malariasimulation run_simulation_with_repetitions
 #'
 #' @examples
 score_calibration <- function(out_EIR, 
                               parameters,
                               target, 
                               target_tt,
-                              ncores = 1,
                               nsims = 100,
                               summary_function){
   
-  runs <- run_simulations(parameters = parameters, 
-                                 target = target, 
-                                 target_tt = target_tt, 
-                                 test_EIRs = rep(out_EIR, nsims), 
-                                 ncores = ncores, 
-                                 summary_function = summary_function)
+  runs <- malariasimulation::run_simulation_with_repetitions(timesteps = max(target_tt), 
+                                                             repetitions = nsims, 
+                                                             overrides = parameters, 
+                                                             parallel = TRUE)
+
+  df <- as.data.table(runs)[, .(timestep, sf = summary_function(.SD)), by = "repetition"
+                            ][timestep %in% target_tt]
   
   pred_matrix <- matrix(NA, nrow = length(target), ncol = nsims)
   
   for(i in 1:length(target)){
-    pred_matrix[i, ] <- runs[timepoint == i, prev]
+    pred_matrix[i, ] <- df[timestep == target_tt[i], sf]
   }
   
   scores <- scoringutils::crps_sample(true_values = target, predictions = pred_matrix)

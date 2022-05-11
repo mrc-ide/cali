@@ -9,7 +9,6 @@ score_calibration(
   parameters,
   target,
   target_tt,
-  ncores = 1,
   nsims = 100,
   summary_function
 )
@@ -23,11 +22,11 @@ score_calibration(
 
 \item{target_tt}{Timesteps of target.}
 
-\item{ncores}{Number of cpu cores to perform simulations on in parallel}
-
 \item{nsims}{Number of simulations to run}
 
 \item{summary_function}{A function that produces a vector of the target variable.}
+
+\item{ncores}{Number of cpu cores to perform simulations on in parallel}
 }
 \value{
 

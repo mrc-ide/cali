@@ -21,7 +21,7 @@ calibrate(
 
 \item{target_tt}{Timesteps of target.}
 
-\item{summary_function}{A function that produces the a vector of the target variable.}
+\item{summary_function}{A function that produces a vector of the target variable.}
 
 \item{tolerance}{The average tolerance, in target variable units, with which to match target.}
 

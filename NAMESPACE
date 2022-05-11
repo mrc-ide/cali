@@ -2,6 +2,7 @@
 
 export(calibrate)
 export(nlcali)
+export(score_calibration)
 export(summary_pfpr_2_10)
 importFrom(boot,inv.logit)
 importFrom(boot,logit)
@@ -19,3 +20,4 @@ importFrom(mgcv,gam)
 importFrom(mgcv,rmvn)
 importFrom(parallel,detectCores)
 importFrom(parallel,makeCluster)
+importFrom(scoringutils,crps_sample)

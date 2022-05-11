@@ -131,7 +131,7 @@ fit_spline <- function(sim_data, target){
   
   # Generate prevalence values to predict starting_EIR for
   xseq <- boot::logit(seq(min(sim_data$prev), max(sim_data$prev), 0.01))
-  targ <- ifelse(target == 0, 0.0001)
+  targ <- ifelse(target == 0, 0.0001, target)
   
   if(length(target) == 1){
     pred_df <- data.frame(prev1 = xseq)
@@ -180,4 +180,49 @@ fit_spline <- function(sim_data, target){
   out <- out[- nrow(out), ]
   
   return(list(spline = out, pred = pred, mod = m))
+}
+
+
+#' Simulate from calibrated EIR value and calculate continuous ranked probability score
+#'
+#' @param out_EIR fitted EIR from a cali or ncali run
+#' @param parameters Other malariasimulation model parameters
+#' @param target Values of target variable to calibrate to.
+#' @param target_tt Timesteps of target.
+#' @param ncores Number of cpu cores to perform simulations on in parallel
+#' @param nsims Number of simulations to run
+#' @param summary_function A function that produces a vector of the target variable.
+#'
+#' @return
+#' @export
+#' @importFrom scoringutils crps_sample
+#' @data.table data.table
+#'
+#' @examples
+score_calibration <- function(out_EIR, 
+                              parameters,
+                              target, 
+                              target_tt,
+                              ncores = 1,
+                              nsims = 100,
+                              summary_function){
+  
+  runs <- run_simulations(parameters = parameters, 
+                                 target = target, 
+                                 target_tt = target_tt, 
+                                 test_EIRs = rep(out_EIR, nsims), 
+                                 ncores = ncores, 
+                                 summary_function = summary_function)
+  
+  pred_matrix <- matrix(NA, nrow = length(target), ncol = nsims)
+  
+  for(i in 1:length(target)){
+    pred_matrix[i, ] <- runs[timepoint == i, prev]
+  }
+  
+  scores <- scoringutils::crps_sample(true_values = target, predictions = pred_matrix)
+  
+  out <- data.table::data.table(target = target, crps = scores)
+  
+  return(out)
 }

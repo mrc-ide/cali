@@ -2,6 +2,7 @@
 
 export(calibrate)
 export(nlcali)
+export(run_simulations)
 export(score_calibration)
 export(summary_pfpr_2_10)
 importFrom(boot,inv.logit)

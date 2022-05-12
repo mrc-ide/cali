@@ -15,25 +15,34 @@ nlcali <- function(parameters,
                    target, 
                    target_tt,
                    summary_function,
+                   par_name = "init_EIR",
+                   summary_name = "prev",
+                   interval = c(0, 300),
                    ncores = 1,
-                   nsims = 100) {
-  
-  # Range of EIR values to be test
-  test_EIRs <- exp(seq(-3, 6, length.out = nsims))
+                   nsims = 100,
+                   trans.par = exp,
+                   inv.trans.par = log,
+                   trans.summary = boot::logit,
+                   inv.trans.summary = boot::inv.logit) {
   
   # Simulate runs for each EIR value to be tested
   sim_data <- run_simulations(parameters = parameters,
-                                      target = target,
-                                      target_tt = target_tt,
-                                      ncores = ncores,
-                                      test_EIRs = test_EIRs,
+                              par_name = par_name, 
+                              summary_name = summary_name,
+                              target = target,
+                              target_tt = target_tt,
+                              ncores = ncores,
+                              nsims = nsims,
+                              interval = interval,
                               summary_function = summary_function)
   
   # Fit spline model to simulation output
   mod_res <- fit_spline(sim_data = sim_data,
-                                target = target)
+                               target = target, 
+                               par_name = par_name, 
+                               summary_name = summary_name)
   
-  return(list(sims = sim_data, eir_pred = mod_res$pred, fit = mod_res$spline, mod = mod_res$mod))
+  return(list(sims = sim_data, target_pred = mod_res$pred, fit = mod_res$spline, mod = mod_res$mod))
 }
 
 #' Run simulations from malariasimuation
@@ -44,6 +53,7 @@ nlcali <- function(parameters,
 #' @param test_EIRs A vector of EIR values to use in the simulations
 #' @param ncores Number of simulations to run
 #' @param summary_function A function that produces a vector of the target variable.
+#' @export
 #' @return A data.table of simulation results
 #' @importFrom parallel detectCores makeCluster
 #' @importFrom doParallel registerDoParallel
@@ -52,7 +62,18 @@ nlcali <- function(parameters,
 #' @importFrom malariasimulation set_equilibrium run_simulation
 #'
 #' @examples
-run_simulations <- function(parameters, target, target_tt, test_EIRs, ncores, summary_function) {
+run_simulations <- function(parameters,
+                            target,
+                            target_tt,
+                            interval,
+                            nsims,
+                            par_name = "init_EIR",
+                            summary_name = "prev",
+                            ncores,
+                            summary_function) {
+  
+  # Range of values to test
+  test_values <- seq(interval[1], interval[2], length.out = nsims)
   
   # Set up cores for parallel runs
   print("Setting up cores for simulation runs")
@@ -68,28 +89,40 @@ run_simulations <- function(parameters, target, target_tt, test_EIRs, ncores, su
   print(paste0("Simulating from ", foreach::getDoParWorkers(), " cores"))
   
   # Create function that will run the model for a specific EIR
-  run_func <- function(x){
-    p <- malariasimulation::set_equilibrium(parameters, init_EIR = x)
-    raw_output <- malariasimulation::run_simulation(timesteps = max(target_tt), parameters = p)
-    out <- summary_function(raw_output)[target_tt]
-    return(out)
+  if(par_name == "init_EIR"){
+    run_func <- function(x, parameters){
+      summary_function(malariasimulation::run_simulation(timesteps = max(target_tt), 
+                                                         parameters = malariasimulation::set_equilibrium(parameters,init_EIR = x)))[target_tt]
+    }
+  }else{
+    run_func <- function(x, parameters){
+      parameters[[par_name]] <- matrix(x, nrow = 1, ncol = 1)
+      summary_function(malariasimulation::run_simulation(timesteps = max(target_tt), parameters = parameters))[target_tt]
+    }
   }
   
+
+  
   # Perform runs in parallel
-  ll <- foreach::foreach(i = 1:length(test_EIRs)) %dopar% {
-    data.table::data.table(eir = test_EIRs[i],
-                           prev = run_func(test_EIRs[i]),
+  ll <- foreach::foreach(i = 1:length(test_values)) %dopar% {
+    data.table::data.table(test_value = test_values[i],
+                           sim_value = run_func(x = test_values[i],
+                                           parameters = parameters),
                            timepoint = 1:length(target_tt))
   }
   
   # Convert output into data.table
   out <- data.table::rbindlist(ll)
   
-  # Can't have fully 0 prevalence into logit model
-  out[prev == 0, prev := 0.005]
+  # Can't have fully 0 or 1 prevalence into logit model
+  out[sim_value == 0, sim_value := 0.001]
+  out[sim_value == 1, sim_value := 0.999]
   
   # Turn off clusters
   parallel::stopCluster(cl = my.cluster)
+  
+  colnames(out)[colnames(out) == "sim_value"] <- summary_name
+  colnames(out)[colnames(out) == "test_value"] <- par_name
   
   return(out)
 }
@@ -105,47 +138,54 @@ run_simulations <- function(parameters, target, target_tt, test_EIRs, ncores, su
 #' @importFrom boot logit inv.logit
 #'
 #' @examples
-fit_spline <- function(sim_data, target){
+fit_spline <- function(sim_data, 
+                       target, 
+                       par_name, 
+                       summary_name){
   
   # Re-format simulation data into wide format
   dat <- data.table::copy(sim_data)
-  cols <- paste0("prev", 1:length(target))
-  dat <- dat[, (cols) := as.list(.SD[,prev]), by = "eir"]
-  dat <- dat[timepoint == 1, ]
-  dat[, prev := NULL]
-  dat[, timepoint := NULL]
+  cols <- paste0(summary_name, 1:length(target))
+  
+  z <- data.table::data.table(x = unique(dat[, ..par_name]))
+  colnames(z) <- par_name
+  for(i in 1:length(target)){
+    z[, (cols[i]) := dat[timepoint == i, summary_name, with = FALSE]]
+  }
   
   # Transform data to give roughly linear relationship
-  dat[, (cols) := lapply(.SD, boot::logit), .SDcols = cols]
-  dat[, eir := log(eir)]
+  z[, (cols) := lapply(.SD, trans.summary), .SDcols = cols]
+  z[, (par_name) := lapply(.SD, trans.par), .SDcols = par_name]
   
   # Generate relevant formula depending on number of targets
-  form <- paste0("eir ~ s(prev1)",
+  form <- paste0(par_name," ~ s(",summary_name,"1)",
                  ifelse(length(target) > 1,
-                        paste0(" + s(prev",
+                        paste0(" + s(",summary_name,
                                2:length(target),
                                ")", collapse = ""), ""))
   
   # Fit spline model
-  m <- mgcv::gam(data = dat, formula = as.formula(form))
+  m <- mgcv::gam(data = z, formula = as.formula(form))
   
   # Generate prevalence values to predict starting_EIR for
-  xseq <- boot::logit(seq(min(sim_data$prev), max(sim_data$prev), 0.01))
-  targ <- ifelse(target == 0, 0.0001, target)
+  xseq <- trans.summary(seq(min(sim_data[, ..summary_name]), max(sim_data[, ..summary_name]), 0.01))
+  targ <- trans.summary(ifelse(target == 0, 0.001, target))
   
   if(length(target) == 1){
-    pred_df <- data.frame(prev1 = xseq)
+    pred_df <- data.frame(xseq)
     # Add specific prediction values to the end of the data.frame
-    pred_df <- rbind(pred_df, data.frame(prev1 = boot::logit(targ)))
+    tar_df <- data.frame(xseq = targ)
+    pred_df <- rbind(pred_df, tar_df)
+    colnames(pred_df) <- paste0(summary_name, "1")
   }else if(length(target)  == 2){
     pred_df <- data.frame(expand.grid(xseq, xseq))
     colnames(pred_df) <- cols
     # Add specific prediction values to the end of the data.frame
     tar_df <- pred_df[1,]
-    tar_df[1, ] <- boot::logit(targ)
+    tar_df[1, ] <- targ
     pred_df <- rbind(pred_df, tar_df)
   }else if(length(target) > 2){
-    pred_df <- as.data.frame(matrix(boot::logit(targ), 
+    pred_df <- as.data.frame(matrix(targ, 
                       nrow = 1, 
                       ncol = length(target), 
                       byrow = TRUE))
@@ -170,10 +210,10 @@ fit_spline <- function(sim_data, target){
   
   
   # Format output back into real values
-  out[, (cols) := lapply(.SD, boot::inv.logit), .SDcols = cols]
+  out[, (cols) := lapply(.SD, inv.trans.summary), .SDcols = cols]
   cols2 <- c("fit", "upr", "lwr")
-  out[, (cols2) := lapply(.SD, exp), .SDcols = cols2]
-  colnames(out)[colnames(out) == "fit"] <- "eir"
+  out[, (cols2) := lapply(.SD, inv.trans.par), .SDcols = cols2]
+  colnames(out)[colnames(out) == "fit"] <- par_name
   
   # Separate specific values to be predicted
   pred <- out[nrow(out),]

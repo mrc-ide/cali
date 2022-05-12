@@ -8,7 +8,10 @@ run_simulations(
   parameters,
   target,
   target_tt,
-  test_EIRs,
+  interval,
+  nsims,
+  par_name = "init_EIR",
+  summary_name = "prev",
   ncores,
   summary_function
 )
@@ -20,11 +23,11 @@ run_simulations(
 
 \item{target_tt}{Timesteps of target.}
 
-\item{test_EIRs}{A vector of EIR values to use in the simulations}
-
 \item{ncores}{Number of simulations to run}
 
 \item{summary_function}{A function that produces a vector of the target variable.}
+
+\item{test_EIRs}{A vector of EIR values to use in the simulations}
 }
 \value{
 A data.table of simulation results

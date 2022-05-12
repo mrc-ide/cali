@@ -165,31 +165,41 @@ fit_spline <- function(sim_data,
                                ")", collapse = ""), ""))
   
   # Fit spline model
-  m <- mgcv::gam(data = z, formula = as.formula(form))
+  m <- mgcv::gam(data = z, 
+                 formula = as.formula(form), 
+                 method = "REML")
   
   # Generate prevalence values to predict starting_EIR for
-  xseq <- trans.summary(seq(min(sim_data[, ..summary_name]), max(sim_data[, ..summary_name]), 0.01))
+  xseq <- trans.summary(seq(min(sim_data[, ..summary_name]), 
+                            max(sim_data[, ..summary_name]), 
+                            0.01))
   targ <- trans.summary(ifelse(target == 0, 0.001, target))
   
   if(length(target) == 1){
+    
     pred_df <- data.frame(xseq)
     # Add specific prediction values to the end of the data.frame
     tar_df <- data.frame(xseq = targ)
     pred_df <- rbind(pred_df, tar_df)
     colnames(pred_df) <- paste0(summary_name, "1")
+    
   }else if(length(target)  == 2){
+    
     pred_df <- data.frame(expand.grid(xseq, xseq))
     colnames(pred_df) <- cols
     # Add specific prediction values to the end of the data.frame
     tar_df <- pred_df[1,]
     tar_df[1, ] <- targ
     pred_df <- rbind(pred_df, tar_df)
+    
   }else if(length(target) > 2){
+    
     pred_df <- as.data.frame(matrix(targ, 
                       nrow = 1, 
                       ncol = length(target), 
                       byrow = TRUE))
     colnames(pred_df) <- cols
+    
   }
   
   # Generate simultaneous confidence intervals
@@ -216,16 +226,15 @@ fit_spline <- function(sim_data,
   colnames(out)[colnames(out) == "fit"] <- par_name
   
   # Separate specific values to be predicted
-  pred <- out[nrow(out),]
-  out <- out[- nrow(out), ]
+  pred <- out[nrow(out), ]
+  out <- out[-nrow(out), ]
   
   return(list(spline = out, pred = pred, mod = m))
 }
 
 
-#' Simulate from calibrated EIR value and calculate continuous ranked probability score
+#' Simulate from parameters using calibrated value and calculate continuous ranked probability score
 #'
-#' @param out_EIR fitted EIR from a cali or ncali run
 #' @param parameters Other malariasimulation model parameters
 #' @param target Values of target variable to calibrate to.
 #' @param target_tt Timesteps of target.
@@ -240,8 +249,7 @@ fit_spline <- function(sim_data,
 #' @importFrom malariasimulation run_simulation_with_repetitions
 #'
 #' @examples
-score_calibration <- function(out_EIR, 
-                              parameters,
+score_calibration <- function(parameters,
                               target, 
                               target_tt,
                               nsims = 100,
@@ -252,7 +260,7 @@ score_calibration <- function(out_EIR,
                                                              overrides = parameters, 
                                                              parallel = TRUE)
 
-  df <- as.data.table(runs)[, .(timestep, sf = summary_function(.SD)), by = "repetition"
+  df <-data.table::as.data.table(runs)[, .(timestep, sf = summary_function(.SD)), by = "repetition"
                             ][timestep %in% target_tt]
   
   pred_matrix <- matrix(NA, nrow = length(target), ncol = nsims)
@@ -265,5 +273,5 @@ score_calibration <- function(out_EIR,
   
   out <- data.table::data.table(target = target, crps = scores)
   
-  return(out)
+  return(list(score = out, sims = df))
 }

@@ -2,20 +2,11 @@
 % Please edit documentation in R/nlcali.R
 \name{score_calibration}
 \alias{score_calibration}
-\title{Simulate from calibrated EIR value and calculate continuous ranked probability score}
+\title{Simulate from parameters using calibrated value and calculate continuous ranked probability score}
 \usage{
-score_calibration(
-  out_EIR,
-  parameters,
-  target,
-  target_tt,
-  nsims = 100,
-  summary_function
-)
+score_calibration(parameters, target, target_tt, nsims = 100, summary_function)
 }
 \arguments{
-\item{out_EIR}{fitted EIR from a cali or ncali run}
-
 \item{parameters}{Other malariasimulation model parameters}
 
 \item{target}{Values of target variable to calibrate to.}
@@ -32,5 +23,5 @@ score_calibration(
 
 }
 \description{
-Simulate from calibrated EIR value and calculate continuous ranked probability score
+Simulate from parameters using calibrated value and calculate continuous ranked probability score
 }

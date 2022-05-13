@@ -15,6 +15,7 @@ nlcali <- function(parameters,
                    target, 
                    target_tt,
                    summary_function,
+                   change_function,
                    par_name = "init_EIR",
                    summary_name = "prev",
                    interval = c(0, 300),
@@ -23,7 +24,8 @@ nlcali <- function(parameters,
                    trans.par = exp,
                    inv.trans.par = log,
                    trans.summary = boot::logit,
-                   inv.trans.summary = boot::inv.logit) {
+                   inv.trans.summary = boot::inv.logit,
+                   ...) {
   
   # Simulate runs for each EIR value to be tested
   sim_data <- run_simulations(parameters = parameters,
@@ -34,7 +36,9 @@ nlcali <- function(parameters,
                               ncores = ncores,
                               nsims = nsims,
                               interval = interval,
-                              summary_function = summary_function)
+                              summary_function = summary_function,
+                              change_function = change_function,
+                              ...)
   
   # Fit spline model to simulation output
   mod_res <- fit_spline(sim_data = sim_data,
@@ -70,7 +74,9 @@ run_simulations <- function(parameters,
                             par_name = "init_EIR",
                             summary_name = "prev",
                             ncores,
-                            summary_function) {
+                            summary_function,
+                            change_function,
+                            ...) {
   
   # Range of values to test
   test_values <- seq(interval[1], interval[2], length.out = nsims)
@@ -88,26 +94,10 @@ run_simulations <- function(parameters,
   print(paste0("Cluster registered: ", foreach::getDoParRegistered()))
   print(paste0("Simulating from ", foreach::getDoParWorkers(), " cores"))
   
-  # Create function that will run the model for a specific EIR
-  if(par_name == "init_EIR"){
-    run_func <- function(x, parameters){
-      summary_function(malariasimulation::run_simulation(timesteps = max(target_tt), 
-                                                         parameters = malariasimulation::set_equilibrium(parameters,init_EIR = x)))[target_tt]
-    }
-  }else{
-    run_func <- function(x, parameters){
-      parameters[[par_name]] <- matrix(x, nrow = 1, ncol = 1)
-      summary_function(malariasimulation::run_simulation(timesteps = max(target_tt), parameters = parameters))[target_tt]
-    }
-  }
-  
-
-  
   # Perform runs in parallel
   ll <- foreach::foreach(i = 1:length(test_values)) %dopar% {
     data.table::data.table(test_value = test_values[i],
-                           sim_value = run_func(x = test_values[i],
-                                           parameters = parameters),
+                           sim_value = summary_function(malariasimulation::run_simulation(timesteps = max(target_tt), parameters = change_function(x = test_values[i], parameters = parameters, par_name = par_name),...))[target_tt],
                            timepoint = 1:length(target_tt))
   }
   
@@ -274,4 +264,36 @@ score_calibration <- function(parameters,
   out <- data.table::data.table(target = target, crps = scores)
   
   return(list(score = out, sims = df))
+}
+
+#' Default change function that varies EIR
+#'
+#' @param x 
+#' @param parameters 
+#' @param par_name 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+eir_change <- function(x, parameters, par_name){
+  parameters <- malariasimulation::set_equilibrium(parameters = parameters, 
+                                                   init_EIR = x)
+  return(parameters)
+}
+
+
+#' Default change function for standard parameters
+#'
+#' @param x 
+#' @param parameters 
+#' @param par_name 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+default_change <- function(x, parameters, par_name){
+  parameters[[par_name]] <- x
+  return(parameters)
 }

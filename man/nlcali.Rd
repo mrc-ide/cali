@@ -9,6 +9,7 @@ nlcali(
   target,
   target_tt,
   summary_function,
+  change_function,
   par_name = "init_EIR",
   summary_name = "prev",
   interval = c(0, 300),
@@ -17,7 +18,8 @@ nlcali(
   trans.par = exp,
   inv.trans.par = log,
   trans.summary = boot::logit,
-  inv.trans.summary = boot::inv.logit
+  inv.trans.summary = boot::inv.logit,
+  ...
 )
 }
 \arguments{

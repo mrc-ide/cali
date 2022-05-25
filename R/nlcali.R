@@ -31,20 +31,25 @@ nlcali <- function(parameters,
   sim_data <- run_simulations(parameters = parameters,
                               par_name = par_name, 
                               summary_name = summary_name,
-                              target = target,
                               target_tt = target_tt,
                               ncores = ncores,
                               nsims = nsims,
                               interval = interval,
                               summary_function = summary_function,
-                              change_function = change_function,
+                              change_function = change_function, 
+                              trans.par = trans.par,
+                              inv.trans.par = inv.trans.par,
                               ...)
   
   # Fit spline model to simulation output
   mod_res <- fit_spline(sim_data = sim_data,
-                               target = target, 
-                               par_name = par_name, 
-                               summary_name = summary_name)
+                        target = target, 
+                        par_name = par_name, 
+                        summary_name = summary_name,
+                        trans.par = trans.par, 
+                        trans.summary = trans.summary, 
+                        inv.trans.par = inv.trans.par, 
+                        inv.trans.summary = inv.trans.summary)
   
   return(list(sims = sim_data, target_pred = mod_res$pred, fit = mod_res$spline, mod = mod_res$mod))
 }
@@ -67,7 +72,6 @@ nlcali <- function(parameters,
 #'
 #' @examples
 run_simulations <- function(parameters,
-                            target,
                             target_tt,
                             interval,
                             nsims,
@@ -76,10 +80,12 @@ run_simulations <- function(parameters,
                             ncores,
                             summary_function,
                             change_function,
+                            trans.par, 
+                            inv.trans.par,
                             ...) {
   
   # Range of values to test
-  test_values <- seq(interval[1], interval[2], length.out = nsims)
+  test_values <- inv.trans.par(seq(trans.par(interval[1]), trans.par(interval[2]), length.out = nsims))
   
   # Set up cores for parallel runs
   print("Setting up cores for simulation runs")
@@ -131,7 +137,11 @@ run_simulations <- function(parameters,
 fit_spline <- function(sim_data, 
                        target, 
                        par_name, 
-                       summary_name){
+                       summary_name,
+                       trans.summary,
+                       trans.par,
+                       inv.trans.summary,
+                       inv.trans.par){
   
   # Re-format simulation data into wide format
   dat <- data.table::copy(sim_data)

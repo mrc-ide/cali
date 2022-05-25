@@ -4,7 +4,16 @@
 \alias{fit_spline}
 \title{Fit non-linear spline model to simulation data}
 \usage{
-fit_spline(sim_data, target, par_name, summary_name)
+fit_spline(
+  sim_data,
+  target,
+  par_name,
+  summary_name,
+  trans.summary,
+  trans.par,
+  inv.trans.summary,
+  inv.trans.par
+)
 }
 \arguments{
 \item{target}{Values of target variable to calibrate to.}

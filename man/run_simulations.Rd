@@ -6,26 +6,29 @@
 \usage{
 run_simulations(
   parameters,
-  target,
   target_tt,
   interval,
   nsims,
   par_name = "init_EIR",
   summary_name = "prev",
   ncores,
-  summary_function
+  summary_function,
+  change_function,
+  trans.par,
+  inv.trans.par,
+  ...
 )
 }
 \arguments{
 \item{parameters}{Other malariasimulation model parameters}
-
-\item{target}{Values of target variable to calibrate to.}
 
 \item{target_tt}{Timesteps of target.}
 
 \item{ncores}{Number of simulations to run}
 
 \item{summary_function}{A function that produces a vector of the target variable.}
+
+\item{target}{Values of target variable to calibrate to.}
 
 \item{test_EIRs}{A vector of EIR values to use in the simulations}
 }

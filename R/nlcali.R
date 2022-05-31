@@ -16,15 +16,15 @@ nlcali <- function(parameters,
                    target_tt,
                    summary_function,
                    change_function,
-                   par_name = "init_EIR",
+                   par_name = NA,
                    summary_name = "prev",
                    interval = c(0, 300),
                    ncores = 1,
                    nsims = 100,
-                   trans.par = exp,
-                   inv.trans.par = log,
-                   trans.summary = boot::logit,
-                   inv.trans.summary = boot::inv.logit,
+                   trans.par = id_func,
+                   inv.trans.par = id_func,
+                   trans.summary = id_func,
+                   inv.trans.summary = id_func,
                    ...) {
   
   # Simulate runs for each EIR value to be tested
@@ -80,8 +80,8 @@ run_simulations <- function(parameters,
                             ncores,
                             summary_function,
                             change_function,
-                            trans.par, 
-                            inv.trans.par,
+                            trans.par = id_func, 
+                            inv.trans.par = id_func,
                             ...) {
   
   # Range of values to test
@@ -306,4 +306,16 @@ eir_change <- function(x, parameters, par_name){
 default_change <- function(x, parameters, par_name){
   parameters[[par_name]] <- x
   return(parameters)
+}
+
+#' Identity function
+#'
+#' @param x 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+id_func <- function(x){
+  return(x)
 }

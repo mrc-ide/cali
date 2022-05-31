@@ -3,6 +3,7 @@
 export(calibrate)
 export(default_change)
 export(eir_change)
+export(id_func)
 export(nlcali)
 export(run_simulations)
 export(score_calibration)

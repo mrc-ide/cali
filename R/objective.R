@@ -14,7 +14,7 @@ objective <- function(x, parameters, target, summary_function, tolerance, weight
   difference <- (target_variable - target)
   message("Current difference: ", paste(signif(difference, 3), collapse = " "))
   difference <- sum(difference * weights)
-  message("Current sum of weighted difference: ", paste(signif(difference, 3), collapse = " "))
+  message("Current sum of absolute weighted difference: ", paste(signif(abs(difference), 3), collapse = " "))
   # Adjust for specified tolerance
   difference[abs(difference) < tolerance] <- 0
   return(difference)

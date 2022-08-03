@@ -11,6 +11,9 @@ objective <- function(x, parameters, target, summary_function, tolerance, weight
   p <- malariasimulation::set_equilibrium(parameters, init_EIR = x)
   raw_output <- malariasimulation::run_simulation(timesteps = p$timesteps, parameters = p)
   target_variable <- summary_function(raw_output)
+  if(length(target_variable) != length(target)){
+    stop("summary function must produce a vector of the same length as target")
+  }
   difference <- (target_variable - target)
   message("Current difference: ", paste(signif(difference, 3), collapse = " "))
   difference <- sum(difference * weights)

@@ -4,7 +4,7 @@
 \alias{objective}
 \title{Objective function}
 \usage{
-objective(x, parameters, target, target_tt, summary_function, tolerance)
+objective(x, parameters, target, summary_function, tolerance, weights)
 }
 \arguments{
 \item{x}{Input parameter to be varied. For malariasimulation this is EIR.}
@@ -13,11 +13,15 @@ objective(x, parameters, target, target_tt, summary_function, tolerance)
 
 \item{target}{Values of target variable to calibrate to.}
 
-\item{target_tt}{Timesteps of target.}
+\item{summary_function}{A function that take the raw model output as an argument and
+produces a vector of the target variable.}
 
-\item{summary_function}{A function that produces the a vector of the target variable.}
+\item{tolerance}{The routine will complete when the sum of the absolute weighted difference between the target variable
+and the target values falls below this value. Tolerance is specified in
+the units of the target variable (e.g. if my target variable is prevalence, and my tolerance is 0.05,
+then the sum of the absolute weighted difference between the target variable and the target values must be <5\% for the routine to succeed).}
 
-\item{tolerance}{The average tolerance, in target variable units, with which to match target.}
+\item{weights}{A numerical vector of weights the same length as target giving the weights to use for elements of target.}
 }
 \value{
 Difference between output and target.

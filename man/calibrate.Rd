@@ -7,9 +7,9 @@
 calibrate(
   parameters,
   target,
-  target_tt,
   summary_function,
   tolerance,
+  weights = rep(1, length(target)),
   interval = c(0.01, 2000)/365,
   ...
 )
@@ -19,15 +19,15 @@ calibrate(
 
 \item{target}{Values of target variable to calibrate to.}
 
-\item{target_tt}{Timesteps of target.}
-
 \item{summary_function}{A function that take the raw model output as an argument and
 produces a vector of the target variable.}
 
-\item{tolerance}{The routine will complete when the difference between the target variable
-and each of the target values are all within this range. Tolerance is specified in
+\item{tolerance}{The routine will complete when the sum of the absolute weighted difference between the target variable
+and the target values falls below this value. Tolerance is specified in
 the units of the target variable (e.g. if my target variable is prevalence, and my tolerance is 0.05,
-then the difference between the target variable and each of the target values must be <5\% for the routine to succeed).}
+then the sum of the absolute weighted difference between the target variable and the target values must be <5\% for the routine to succeed).}
+
+\item{weights}{A numerical vector of weights the same length as target giving the weights to use for elements of target.}
 
 \item{interval}{The search interval of init EIRs.}
 

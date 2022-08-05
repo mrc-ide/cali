@@ -10,11 +10,11 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
-Remotes:
-  mrc-ide/malariasimulation@dev
+Remotes: 
+    mrc-ide/malariasimulation
 Imports:
-  malariasimulation (>= 1.3.0),
-  stats
+    malariasimulation (>= 1.4.0),
+    stats
 Suggests: 
   ggplot2,
   rmarkdown,

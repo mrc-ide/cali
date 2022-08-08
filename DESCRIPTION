@@ -13,7 +13,7 @@ RoxygenNote: 7.2.1
 Remotes: 
     mrc-ide/malariasimulation@dev
 Imports:
-    malariasimulation (>= 1.4.0),
+    malariasimulation (>= 1.4.1),
     stats
 Suggests: 
   ggplot2,

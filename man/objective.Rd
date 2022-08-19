@@ -4,7 +4,15 @@
 \alias{objective}
 \title{Objective function}
 \usage{
-objective(x, parameters, target, summary_function, tolerance, weights)
+objective(
+  x,
+  parameters,
+  target,
+  summary_function,
+  tolerance,
+  weights,
+  elimination_penalty
+)
 }
 \arguments{
 \item{x}{Input parameter to be varied. For malariasimulation this is EIR.}
@@ -22,6 +30,9 @@ the units of the target variable (e.g. if my target variable is prevalence, and 
 then the sum of the absolute weighted difference between the target variable and the target values must be <5\% for the routine to succeed).}
 
 \item{weights}{A numerical vector of weights the same length as target giving the weights to use for elements of target.}
+
+\item{elimination_penalty}{If set to a value then any evaluations of the objective function where the model output is
+0 (i.e. elimination) and target >0 will be given this value. Used to force a solution to have ongoing transmission.}
 }
 \value{
 Difference between output and target.

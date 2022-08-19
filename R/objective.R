@@ -6,7 +6,7 @@
 #' @inheritParams calibrate
 #'
 #' @return Difference between output and target.
-objective <- function(x, parameters, target, summary_function, tolerance, weights){
+objective <- function(x, parameters, target, summary_function, tolerance, weights, elimination_penalty){
   message("Trying EIR: ", signif(x, 5))
   
   p <- malariasimulation::set_equilibrium(parameters, init_EIR = x)
@@ -18,6 +18,9 @@ objective <- function(x, parameters, target, summary_function, tolerance, weight
   }
   
   difference <- (model_output - target)
+  if(!is.null(elimination_penalty)){
+    difference[model_output == 0 & target != 0] <- elimination_penalty
+  }
   weighted_difference <- difference * weights
   sum_weighted_difference <- sum(weighted_difference)
   

@@ -14,17 +14,23 @@
 #' then the sum of the absolute weighted difference between the target variable and the target values must be <5% for the routine to succeed).
 #' @param weights A numerical vector of weights the same length as target giving the weights to use for elements of target.
 #' @param interval The search interval of init EIRs.
+#' @param elimination_penalty If set to a value then any evaluations of the objective function where the model output is
+#' 0 (i.e. elimination) and target >0 will be given this value. Used to force a solution to have ongoing transmission.
 #' @param ... Additional arguments to pass to the `uniroot()` function.
 #'
 #' @return Uniroot output
 #' @export
-calibrate <- function(parameters, target, summary_function, tolerance, weights = rep(1, length(target)), interval = c(0.01, 2000) / 365, ...){
+calibrate <- function(parameters, target, summary_function, tolerance,
+                      weights = rep(1, length(target)),
+                      interval = c(0.01, 2000) / 365, elimination_penalty = NULL,
+                      ...){
   stats::uniroot(objective,
           parameters = parameters,
           target = target,
           summary_function = summary_function,
           weights = weights,
           tolerance = tolerance, 
-          interval = interval, 
+          interval = interval,
+          elimination_penalty = elimination_penalty,
           ...)
 }

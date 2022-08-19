@@ -11,6 +11,7 @@ calibrate(
   tolerance,
   weights = rep(1, length(target)),
   interval = c(0.01, 2000)/365,
+  elimination_penalty = NULL,
   ...
 )
 }
@@ -30,6 +31,9 @@ then the sum of the absolute weighted difference between the target variable and
 \item{weights}{A numerical vector of weights the same length as target giving the weights to use for elements of target.}
 
 \item{interval}{The search interval of init EIRs.}
+
+\item{elimination_penalty}{If set to a value then any evaluations of the objective function where the model output is
+0 (i.e. elimination) and target >0 will be given this value. Used to force a solution to have ongoing transmission.}
 
 \item{...}{Additional arguments to pass to the \code{uniroot()} function.}
 }

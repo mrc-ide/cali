@@ -16,13 +16,15 @@
 #' @param interval The search interval of init EIRs.
 #' @param elimination_penalty If set to a value then any evaluations of the objective function where the model output is
 #' 0 (i.e. elimination) and target >0 will be given this value. Used to force a solution to have ongoing transmission.
-#' @param ... Additional arguments to pass to the `uniroot()` function.
+#' @param maxiter Max iterations
+#' @param ... Additional arguments to pass to the `f` argument` of the `uniroot()` function.
 #'
 #' @return Uniroot output
 #' @export
 calibrate <- function(parameters, target, summary_function, tolerance,
                       weights = rep(1, length(target)),
                       interval = c(0.01, 2000) / 365, elimination_penalty = NULL,
+                      maxiter = 20,
                       ...){
   stats::uniroot(objective,
           parameters = parameters,
@@ -32,5 +34,6 @@ calibrate <- function(parameters, target, summary_function, tolerance,
           tolerance = tolerance, 
           interval = interval,
           elimination_penalty = elimination_penalty,
+          maxiter = maxiter,
           ...)
 }

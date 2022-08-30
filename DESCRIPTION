@@ -1,6 +1,6 @@
 Package: cali
 Title: Good vibes and model calibration
-Version: 0.1.4
+Version: 0.2.0
 Authors@R: c(
     person("Pete", "Winskill", email = "p.winskill@imperial.ac.uk", role = c("aut", "cre"))
     )
@@ -13,8 +13,7 @@ RoxygenNote: 7.2.1
 Remotes: 
     mrc-ide/malariasimulation@dev
 Imports:
-    malariasimulation (>= 1.4.1),
-    stats
+    malariasimulation (>= 1.4.1)
 Suggests: 
   ggplot2,
   rmarkdown,

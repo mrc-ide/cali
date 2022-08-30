@@ -87,9 +87,6 @@ If you are struggling to get the calibrate function to work, try checking:
 
 1. That your `summary_function` works. The easiest way to do this is to run a single
 model run with the same parameters and then run your `summary_function()` on the output.
-2. That you're providing a reasonable `interval` (range of EIRs) and `tolerance` for fitting.
+2. That you're providing reasonable values for `low` and `high` (the range of EIRs) and `tolerance` for fitting.
 3. That you're population size is large enough that stochasticity in ther results isn't
 too influential.
-
-Finally, make sure you're familiar with the `stats::uniroot()` function and additional set-up and
-tuning arguments.

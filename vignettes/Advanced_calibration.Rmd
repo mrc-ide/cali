@@ -93,7 +93,7 @@ out <- calibrate(parameters = parameters,
                  low = 4, high = 6,
                  weights = c(0.1, 1, 1))
 
-parameters <- set_equilibrium(parameters, init_EIR = out$root)
+parameters <- set_equilibrium(parameters, init_EIR = out)
 raw <- run_simulation(parameters$timesteps + 100, parameters = parameters)
 raw$pfpr <- raw$n_detect_730_3650 / raw$n_730_3650
 

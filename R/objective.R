@@ -6,29 +6,12 @@
 #' @inheritParams calibrate
 #'
 #' @return Difference between output and target.
-objective <- function(x, parameters, target, summary_function, tolerance, weights, elimination_penalty){
-  message("Trying EIR: ", signif(x, 5))
+objective <- function(x, parameters, summary_function){
+  message("\nTrying EIR: ", signif(x, 5))
   
   p <- malariasimulation::set_equilibrium(parameters, init_EIR = x)
   raw_output <- malariasimulation::run_simulation(timesteps = p$timesteps, parameters = p)
   model_output <- summary_function(raw_output)
-  
-  if(length(model_output) != length(target)){
-    stop("summary function must produce a vector of the same length as target")
-  }
-  
-  difference <- (model_output - target)
-  if(!is.null(elimination_penalty)){
-    difference[model_output == 0 & target != 0] <- elimination_penalty
-  }
-  weighted_difference <- difference * weights
-  sum_weighted_difference <- sum(weighted_difference)
-  
-  print(signif(rbind(model_output, target, difference, weighted_difference)), 3)
-  message("\nCurrent sum of weighted difference: ", signif(sum_weighted_difference, 3))
-  
-  # Adjust for specified tolerance
-  sum_weighted_difference[abs(sum_weighted_difference) < tolerance] <- 0
-  
-  return(sum_weighted_difference)
+ 
+  return(model_output)
 }

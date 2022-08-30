@@ -54,13 +54,13 @@ out <- calibrate(parameters = parameters,
                  target = target,
                  summary_function = summary_mean_pfpr_2_10,
                  tolerance = 0.01, 
-                 interval = c(3, 5))
+                 low = 3, high = 5)
 ```
 
 Ok, we've calibrated. Lets run the calibrated model and see how we did.
 
 ```{r}
-parameters <- set_equilibrium(parameters, init_EIR = out$root)
+parameters <- set_equilibrium(parameters, init_EIR = out)
 raw <- run_simulation(parameters$timesteps + 100, parameters = parameters)
 pfpr <- raw$n_detect_730_3650 / raw$n_730_3650
 
@@ -87,9 +87,6 @@ If you are struggling to get the calibrate function to work, try checking:
 
 1. That your `summary_function` works. The easiest way to do this is to run a single
 model run with the same parameters and then run your `summary_function()` on the output.
-2. That you're providing a reasonable `interval` (range of EIRs) and `tolerance` for fitting.
+2. That you're providing reasonable values for `low` and `high` (the range of EIRs) and `tolerance` for fitting.
 3. That you're population size is large enough that stochasticity in ther results isn't
 too influential.
-
-Finally, make sure you're familiar with the `stats::uniroot()` function and additional set-up and
-tuning arguments.

@@ -11,9 +11,9 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Remotes: 
-    mrc-ide/malariasimulation@dev
+    mrc-ide/malariasimulation
 Imports:
-    malariasimulation (>= 1.4.1)
+    malariasimulation (>= 1.4.3)
 Suggests: 
   ggplot2,
   rmarkdown,

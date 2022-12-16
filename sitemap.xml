@@ -7,6 +7,9 @@
     <loc>/LICENSE-text.html</loc>
   </url>
   <url>
+    <loc>/articles/Advanced_calibration.html</loc>
+  </url>
+  <url>
     <loc>/articles/Basic_calibration.html</loc>
   </url>
   <url>
@@ -28,6 +31,9 @@
     <loc>/reference/objective.html</loc>
   </url>
   <url>
-    <loc>/reference/summary_pfpr_2_10.html</loc>
+    <loc>/reference/proposal.html</loc>
+  </url>
+  <url>
+    <loc>/reference/summary_mean_pfpr_2_10.html</loc>
   </url>
 </urlset>

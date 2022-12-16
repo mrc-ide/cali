@@ -4,20 +4,15 @@
 \alias{objective}
 \title{Objective function}
 \usage{
-objective(x, parameters, target, target_tt, summary_function, tolerance)
+objective(x, parameters, summary_function)
 }
 \arguments{
 \item{x}{Input parameter to be varied. For malariasimulation this is EIR.}
 
 \item{parameters}{Other malariasimulation model parameters}
 
-\item{target}{Values of target variable to calibrate to.}
-
-\item{target_tt}{Timesteps of target.}
-
-\item{summary_function}{A function that produces the a vector of the target variable.}
-
-\item{tolerance}{The average tolerance, in target variable units, with which to match target.}
+\item{summary_function}{A function that take the raw model output as an argument and
+produces a vector of the target variable.}
 }
 \value{
 Difference between output and target.

@@ -5,39 +5,43 @@
 \title{Calibrate}
 \usage{
 calibrate(
-  parameters,
   target,
-  target_tt,
   summary_function,
+  parameters,
   tolerance,
-  interval = c(0.01, 2000)/365,
-  ...
+  weights = rep(1, length(target)),
+  elimination_check = TRUE,
+  maxiter = 20,
+  low = 0.001,
+  high = 2000
 )
 }
 \arguments{
-\item{parameters}{Other malariasimulation model parameters}
-
 \item{target}{Values of target variable to calibrate to.}
-
-\item{target_tt}{Timesteps of target.}
 
 \item{summary_function}{A function that take the raw model output as an argument and
 produces a vector of the target variable.}
 
-\item{tolerance}{The routine will complete when the difference between the target variable
-and each of the target values are all within this range. Tolerance is specified in
+\item{parameters}{Other malariasimulation model parameters}
+
+\item{tolerance}{The routine will complete when the absolute sum of the weighted difference between the target variable
+and the target values falls below this value. Tolerance is specified in
 the units of the target variable (e.g. if my target variable is prevalence, and my tolerance is 0.05,
-then the difference between the target variable and each of the target values must be <5\% for the routine to succeed).}
+then the absolute sum of the weighted difference between the target variable and the target values must be <5\% for the routine to succeed).}
 
-\item{interval}{The search interval of init EIRs.}
+\item{weights}{A numerical vector of weights the same length as target giving the weights to use for elements of target.}
 
-\item{...}{Additional arguments to pass to the \code{uniroot()} function.}
+\item{elimination_check}{Check transmission is maintained for all target points with ongoing transmission before exiting early.}
+
+\item{maxiter}{Maximum iterations. If stopping criteria have not been met by \code{maxiter}, the current best estimate will be returned}
+
+\item{low}{Lower boundof EIRs}
+
+\item{high}{Upper bound of EIRs}
 }
 \value{
 Uniroot output
 }
 \description{
-General calibration function for malariasimulation. Please see the documentation for
-\link[stats]{uniroot} to become familiar with possible additional arguments and convergence
-errors.
+General calibration function for malariasimulation.
 }

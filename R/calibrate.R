@@ -40,9 +40,10 @@ calibrate <- function(target,
     weighted_difference <- difference * weights
     print(signif(rbind(y, target, difference, weighted_difference)), 3)
     diff <- sum(weighted_difference)
+    abs_diff <- sum(abs(weighted_difference))
     
     # Can stop early if close enough and transmission maintained
-    within_tol <- abs(diff) < tolerance
+    within_tol <- abs_diff < tolerance
     transmisison <- TRUE
     if(elimination_check){
       transmission <- all(y[target > 0] > 0)

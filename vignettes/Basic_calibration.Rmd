@@ -68,7 +68,7 @@ pd <- data.frame(time = 1:(parameters$timesteps + 100), pfpr = pfpr)
 
 ggplot() +
   geom_hline(yintercept = target, col = "dodgerblue", lty = 2) + 
-  geom_line(data = pd, aes(x = time, y = pfpr), col = "deeppink", size = 1) +
+  geom_line(data = pd, aes(x = time, y = pfpr), col = "deeppink", linewidth = 1) +
   ylim(0, 1) +
   theme_bw()
 

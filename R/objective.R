@@ -21,7 +21,7 @@ objective <- function(x, parameters, summary_function, target, weights, toleranc
     bad_eliminated <- model_output == 0 & target != 0
     if(sum(bad_eliminated) > 0){
       message("Unwanted elimination")
-      weighted_difference[bad_eliminated] <- pmin(-tolerance,  weighted_difference[bad_eliminated])
+      weighted_difference[bad_eliminated] <- -10e6
     }
   }
   

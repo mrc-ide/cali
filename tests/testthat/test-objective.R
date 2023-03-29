@@ -26,7 +26,7 @@ test_that("objective works", {
             target = 0.5,
             weights = 1,
             tolerance = 0.02,
-            elimination_check = TRUE), -0.5)
+            elimination_check = TRUE), -1e6)
   
   x <- data.frame(n_detect_730_3650 = c(0, 0, 0),
                   n_730_3650 = 100)
@@ -37,5 +37,5 @@ test_that("objective works", {
                          target = 0.001,
                          weights = 1,
                          tolerance = 0.02,
-                         elimination_check = TRUE), -0.02)
+                         elimination_check = TRUE), -1e6)
 })

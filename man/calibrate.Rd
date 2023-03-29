@@ -24,10 +24,10 @@ produces a vector of the target variable.}
 
 \item{parameters}{Other malariasimulation model parameters}
 
-\item{tolerance}{The routine will complete when the absolute sum of the weighted difference between the target variable
+\item{tolerance}{The routine will complete when the average absolute weighted difference between the target variable
 and the target values falls below this value. Tolerance is specified in
 the units of the target variable (e.g. if my target variable is prevalence, and my tolerance is 0.05,
-then the absolute sum of the weighted difference between the target variable and the target values must be <5\% for the routine to succeed).}
+then the average absolute sum of the weighted difference between the target variable and the target values must be <5\% for the routine to succeed).}
 
 \item{weights}{A numerical vector of weights the same length as target giving the weights to use for elements of target.}
 

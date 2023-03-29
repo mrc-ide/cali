@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cali</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,7 +49,15 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">objective</span><span class="op">(</span><span class="va">x</span>, <span class="va">parameters</span>, <span class="va">summary_function</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">objective</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  <span class="va">parameters</span>,</span>
+<span>  <span class="va">summary_function</span>,</span>
+<span>  <span class="va">target</span>,</span>
+<span>  <span class="va">weights</span>,</span>
+<span>  <span class="va">tolerance</span>,</span>
+<span>  <span class="va">elimination_check</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -65,6 +73,25 @@
 <dt>summary_function</dt>
 <dd><p>A function that take the raw model output as an argument and
 produces a vector of the target variable.</p></dd>
+
+
+<dt>target</dt>
+<dd><p>Values of target variable to calibrate to.</p></dd>
+
+
+<dt>weights</dt>
+<dd><p>A numerical vector of weights the same length as target giving the weights to use for elements of target.</p></dd>
+
+
+<dt>tolerance</dt>
+<dd><p>The routine will complete when the average absolute weighted difference between the target variable
+and the target values falls below this value. Tolerance is specified in
+the units of the target variable (e.g. if my target variable is prevalence, and my tolerance is 0.05,
+then the average absolute sum of the weighted difference between the target variable and the target values must be &lt;5% for the routine to succeed).</p></dd>
+
+
+<dt>elimination_check</dt>
+<dd><p>Check transmission is maintained for all target points with ongoing transmission before exiting early.</p></dd>
 
 </dl></div>
     <div class="section level2">

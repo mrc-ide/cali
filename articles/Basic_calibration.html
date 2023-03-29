@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cali</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,19 +107,43 @@ on the EIR to search to help speed up this code.</p>
 <span>                 tolerance <span class="op">=</span> <span class="fl">0.01</span>, </span>
 <span>                 low <span class="op">=</span> <span class="fl">3</span>, high <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Trying EIR: 3.873</span></span>
+<span><span class="co">#&gt; Trying EIR: 3</span></span>
 <span><span class="co">#&gt;                        [,1]</span></span>
-<span><span class="co">#&gt; y                    0.2876</span></span>
+<span><span class="co">#&gt; model_output         0.2518</span></span>
 <span><span class="co">#&gt; target               0.3000</span></span>
-<span><span class="co">#&gt; difference          -0.0124</span></span>
-<span><span class="co">#&gt; weighted_difference -0.0124</span></span>
+<span><span class="co">#&gt; difference          -0.0482</span></span>
+<span><span class="co">#&gt; weighted_difference -0.0482</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Trying EIR: 4.4006</span></span>
+<span><span class="co">#&gt; Sum squared weighted difference: -0.048242</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Trying EIR: 5</span></span>
 <span><span class="co">#&gt;                       [,1]</span></span>
-<span><span class="co">#&gt; y                   0.3065</span></span>
+<span><span class="co">#&gt; model_output        0.3151</span></span>
 <span><span class="co">#&gt; target              0.3000</span></span>
-<span><span class="co">#&gt; difference          0.0065</span></span>
-<span><span class="co">#&gt; weighted_difference 0.0065</span></span></code></pre></div>
+<span><span class="co">#&gt; difference          0.0151</span></span>
+<span><span class="co">#&gt; weighted_difference 0.0151</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Sum squared weighted difference: 0.015123</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Trying EIR: 4.5227</span></span>
+<span><span class="co">#&gt;                        [,1]</span></span>
+<span><span class="co">#&gt; model_output        0.30941</span></span>
+<span><span class="co">#&gt; target              0.30000</span></span>
+<span><span class="co">#&gt; difference          0.00941</span></span>
+<span><span class="co">#&gt; weighted_difference 0.00941</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Sum squared weighted difference: 0.009413</span></span>
+<span><span class="co">#&gt; Mean absolute difference &lt; tolerance</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Trying EIR: 4.5227</span></span>
+<span><span class="co">#&gt;                         [,1]</span></span>
+<span><span class="co">#&gt; model_output         0.29462</span></span>
+<span><span class="co">#&gt; target               0.30000</span></span>
+<span><span class="co">#&gt; difference          -0.00538</span></span>
+<span><span class="co">#&gt; weighted_difference -0.00538</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Sum squared weighted difference: -0.005384</span></span>
+<span><span class="co">#&gt; Mean absolute difference &lt; tolerance</span></span></code></pre></div>
 <p>Ok, we’ve calibrated. Lets run the calibrated model and see how we
 did.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">

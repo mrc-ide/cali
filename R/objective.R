@@ -11,6 +11,7 @@ objective <- function(x, parameters, summary_function, target, weights, toleranc
   
   p <- malariasimulation::set_equilibrium(parameters, init_EIR = x)
   raw_output <- malariasimulation::run_simulation(timesteps = p$timesteps, parameters = p)
+  
   model_output <- summary_function(raw_output)
   difference <- model_output - target
   weighted_difference <- difference * weights
@@ -18,10 +19,10 @@ objective <- function(x, parameters, summary_function, target, weights, toleranc
   print(signif(rbind(model_output, target, difference, weighted_difference)), 3)
   
   if(elimination_check){
-    bad_eliminated <- model_output == 0 & target != 0
-    if(sum(bad_eliminated) > 0){
+    unwanted_elimination <- any(raw_output$n_detect_365_36499 == 0)
+    if(unwanted_elimination){
       message("Unwanted elimination")
-      weighted_difference[bad_eliminated] <- -1e6
+      weighted_difference[which.min(model_output)] <- -1e6
     }
   }
   

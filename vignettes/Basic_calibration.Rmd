@@ -6,11 +6,11 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-
+  
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+collapse = TRUE,
+comment = "#>"
 )
 ```
 
@@ -39,7 +39,7 @@ We also need to set up all other aspects of our simulation. In this case, we wil
 set up a very basic model run:
 
 ```{r}
-parameters <- get_parameters(list(human_population = 5000, individual_mosquitoes = FALSE))
+parameters <- get_parameters()
 parameters$timesteps <- 365 * 3
 ```
 
@@ -50,16 +50,18 @@ and put a tight bound on the EIR to search to help speed up this code.
 
 ```{r}
 set.seed(123)
-out <- calibrate(parameters = parameters,
-                 target = target,
-                 summary_function = summary_mean_pfpr_2_10,
-                 tolerance = 0.01, 
-                 low = 3, high = 5)
+out <- calibrate(
+  parameters = parameters,
+  target = target,
+  summary_function = summary_mean_pfpr_2_10,
+  eq_prevalence = target
+)
 ```
 
 Ok, we've calibrated. Lets run the calibrated model and see how we did.
 
 ```{r}
+parameters$human_population <- 5000
 parameters <- set_equilibrium(parameters, init_EIR = out)
 raw <- run_simulation(parameters$timesteps + 100, parameters = parameters)
 pfpr <- raw$n_detect_730_3650 / raw$n_730_3650
@@ -83,10 +85,7 @@ the simulation set up - for example intervention coverage. Don't expect to be ab
 match all data, you'll never match a trend of increasing prevalence over time if
 you model run has increasing intervention coverage over time too!
 
-If you are struggling to get the calibrate function to work, try checking:
-
-1. That your `summary_function` works. The easiest way to do this is to run a single
+If you are struggling to get the calibrate function to work, try checking
+that your `summary_function` works. The easiest way to do this is to run a single
 model run with the same parameters and then run your `summary_function()` on the output.
-2. That you're providing reasonable values for `low` and `high` (the range of EIRs) and `tolerance` for fitting.
-3. That you're population size is large enough that stochasticity in ther results isn't
-too influential.
+

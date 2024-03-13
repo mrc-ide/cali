@@ -2,42 +2,115 @@
 #' 
 #' General calibration function for malariasimulation. 
 #'
-#' @param parameters Other malariasimulation model parameters
+#' @param parameters Malariasimulation model parameter list
 #' @param target Values of target variable to calibrate to.
-#' @param summary_function A function that take the raw model output as an argument and
-#' produces a vector of the target variable.
-#' @param tolerance The routine will complete when the average absolute weighted difference between the target variable 
-#' and the target values falls below this value. Tolerance is specified in 
-#' the units of the target variable (e.g. if my target variable is prevalence, and my tolerance is 0.05,
-#' then the average absolute sum of the weighted difference between the target variable and the target values must be <5% for the routine to succeed).
-#' @param weights A numerical vector of weights the same length as target giving the weights to use for elements of target.
-#' @param elimination_check Check transmission is maintained for all target points with ongoing transmission before exiting early.
-#' @param low Lower boundof EIRs
-#' @param high Upper bound of EIRs
-#' @param maxiter Maximum iterations. If stopping criteria have not been met by `maxiter`, the current best estimate will be returned
+#' @param summary_function A function that take the raw model output as an 
+#` argument and produces a vector of the same length as the target variable.
+#' @param eq_prevalence Estimate of baseline prevalence (to inform EIR initialisation)
+#' @param eq_ft  Estimate of baseline treatment coverage (to inform EIR initialisation)
+#' @param human_population Vector of increasing population sizes. 
+#' @param eir_limits Limits of EIR
+#' @param max_attempts Maximum number of calibration attempts (model runs)
 #'
-#' @return Uniroot output
+#' @return EIR estimate
 #' @export
-calibrate <- function(target,
-                      summary_function,
-                      parameters,
-                      tolerance,
-                      weights = rep(1, length(target)),
-                      elimination_check = TRUE,
-                      maxiter = 20,
-                      low = 0.001, high = 2000){
-
-  x <- stats::uniroot(
-    f = objective, 
-    lower = low,
-    upper = high,
-    maxiter = maxiter,
-    parameters = parameters,
-    summary_function = summary_function,
-    target = target,
-    weights = weights,
-    tolerance = tolerance,
-    elimination_check = elimination_check
+calibrate <- function(parameters, target, summary_function, eq_prevalence, 
+                      eq_ft = 0, human_population = c(1000, 10000, 100000), 
+                      eir_limits = c(0, 1000), max_attempts = 10){
+  
+  eir <- rep(0, 2)
+  objective <- rep(NA, 2)
+  parameters$human_population <- human_population[1]
+  
+  # Estimate starting guess EIR with equilibrium solution
+  message("Initialising EIR\n")
+  eir[1] <- get_eq_eir(
+    target_pfpr = eq_prevalence,
+    ft = eq_ft
   )
-  return(x$root)
+  
+  # Ensure the starting EIR is valid and obtain objective evaluation
+  min_eir <- 0
+  attempts <- 0
+  message("Slice sampling EIR, side 1 \n")
+  while(is.na(objective[1])){
+    message("Attempt ", attempts + 1, " of ", max_attempts)
+    
+    objective[1] <- check_fit(
+      proposed_eir = eir[1],
+      parameters = parameters,
+      target = target,
+      summary_function = summary_function
+    )
+    
+    print_update(eir, objective)
+    attempts <- attempts + 1
+    
+    # In the case that our starting EIR leads to unwanted elimination:
+    ## First approach is to increase the human population if available.
+    ## Second approach is to increase EIR and update our lower bound on EIR.
+    if(is.na(objective[1])){
+      if(parameters$human_population < max(human_population)){
+        parameters$human_population <- human_population[which(human_population == parameters$human_population) + 1]
+        message("Increasing human population due to elimination")
+        message("Running with new population size: ", parameters$human_population, "\n")
+      } else {
+        eir[1] <- proposal(
+          current_eir = eir[1],
+          limits = eir_limits,
+          direction = "increase"
+        )
+        min_eir <- eir[1]
+      }
+    }
+    if(attempts > max_attempts){
+      stop("Failure due to max attempts reached before successful run")
+    }
+  }
+  
+  # Estimate the second EIR
+  message("Slice sampling EIR, side 2 \n")
+  direction <- ifelse(objective[1] > 0, "decrease", "increase")
+  if(direction == "decrease"){
+    eir_limits[1] <- min_eir
+  }
+  estimated_eir <- NA
+  eir[2] <- eir[1]
+  repeat{
+    message("Attempt ", attempts + 1, " of ", max_attempts)
+    # Propose new EIR
+    eir[2] <- proposal(
+      current_eir = eir[2],
+      limits = eir_limits,
+      direction = direction
+    )
+    # Evaluate objective
+    objective[2] <- check_fit(
+      proposed_eir = eir[2],
+      parameters = parameters,
+      target = target,
+      summary_function = summary_function
+    )
+    print_update(eir, objective)
+    # Stop or update
+    if(!is.na(objective[2])){
+      if(good_move(objective, direction)){
+        estimated_eir <- linear_interpolate(eir, objective)
+        message("Success")
+        break
+      } else{
+        # If we haven't moved far enough, we can update eir1 and fit1  
+        eir[1] <- eir[2]
+        objective[1] <- objective[2]
+        attempts <- attempts + 1
+        if(attempts > max_attempts){
+          estimated_eir <- mean(eir)
+          message("Terminating as max attempts reached")
+          break
+        }
+      }
+    }
+    
+  }
+  return(estimated_eir)
 }

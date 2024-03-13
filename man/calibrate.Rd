@@ -5,42 +5,35 @@
 \title{Calibrate}
 \usage{
 calibrate(
+  parameters,
   target,
   summary_function,
-  parameters,
-  tolerance,
-  weights = rep(1, length(target)),
-  elimination_check = TRUE,
-  maxiter = 20,
-  low = 0.001,
-  high = 2000
+  eq_prevalence,
+  eq_ft = 0,
+  human_population = c(1000, 10000, 1e+05),
+  eir_limits = c(0, 1000),
+  max_attempts = 10
 )
 }
 \arguments{
+\item{parameters}{Malariasimulation model parameter list}
+
 \item{target}{Values of target variable to calibrate to.}
 
-\item{summary_function}{A function that take the raw model output as an argument and
-produces a vector of the target variable.}
+\item{summary_function}{A function that take the raw model output as an}
 
-\item{parameters}{Other malariasimulation model parameters}
+\item{eq_prevalence}{Estimate of baseline prevalence (to inform EIR initialisation)}
 
-\item{tolerance}{The routine will complete when the average absolute weighted difference between the target variable
-and the target values falls below this value. Tolerance is specified in
-the units of the target variable (e.g. if my target variable is prevalence, and my tolerance is 0.05,
-then the average absolute sum of the weighted difference between the target variable and the target values must be <5\% for the routine to succeed).}
+\item{eq_ft}{Estimate of baseline treatment coverage (to inform EIR initialisation)}
 
-\item{weights}{A numerical vector of weights the same length as target giving the weights to use for elements of target.}
+\item{human_population}{Vector of increasing population sizes.}
 
-\item{elimination_check}{Check transmission is maintained for all target points with ongoing transmission before exiting early.}
+\item{eir_limits}{Limits of EIR}
 
-\item{maxiter}{Maximum iterations. If stopping criteria have not been met by \code{maxiter}, the current best estimate will be returned}
-
-\item{low}{Lower boundof EIRs}
-
-\item{high}{Upper bound of EIRs}
+\item{max_attempts}{Maximum number of calibration attempts (model runs)}
 }
 \value{
-Uniroot output
+EIR estimate
 }
 \description{
 General calibration function for malariasimulation.

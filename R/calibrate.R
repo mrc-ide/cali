@@ -102,15 +102,14 @@ calibrate <- function(parameters, target, summary_function, eq_prevalence,
         # If we haven't moved far enough, we can update eir1 and fit1  
         eir[1] <- eir[2]
         objective[1] <- objective[2]
-        attempts <- attempts + 1
-        if(attempts > max_attempts){
-          estimated_eir <- mean(eir)
-          message("Terminating as max attempts reached")
-          break
-        }
       }
     }
-    
+    attempts <- attempts + 1
+    if(attempts > max_attempts){
+      estimated_eir <- mean(eir)
+      message("Terminating as max attempts reached")
+      break
+    }
   }
   return(estimated_eir)
 }

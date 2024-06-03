@@ -11,7 +11,7 @@ calibrate(
   eq_prevalence,
   eq_ft = 0,
   human_population = c(1000, 10000, 1e+05),
-  eir_limits = c(0, 1000),
+  eir_limits = c(0, 1500),
   max_attempts = 10
 )
 }

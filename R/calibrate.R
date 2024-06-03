@@ -112,7 +112,7 @@ calibrate <- function(parameters, target, summary_function, eq_prevalence,
     }
     attempts <- attempts + 1
     if(attempts > max_attempts){
-      estimated_eir <- mean(eir)
+      estimated_eir <- mean(eir, na.rm = TRUE)
       message("Terminating as max attempts reached")
       break
     }

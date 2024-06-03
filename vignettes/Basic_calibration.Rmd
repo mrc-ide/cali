@@ -54,7 +54,8 @@ out <- calibrate(
   parameters = parameters,
   target = target,
   summary_function = summary_mean_pfpr_2_10,
-  eq_prevalence = target
+  eq_prevalence = target,
+  human_population = c(10000, 100000)
 )
 ```
 

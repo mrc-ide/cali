@@ -26,6 +26,9 @@ from_real <- function(x, limits){
 #' @param step The step size
 #' @return New EIR value
 proposal <- function(current_eir, limits, direction, step = 0.5) {
+  if(current_eir < limits[1] | current_eir > limits[2]){
+    stop("Current eir outside of limits")
+  }
   r <- to_real(current_eir, limits)
   r_prop <- ifelse(direction ==  "decrease", r - step, r + step)
   proposed_eir <- from_real(r_prop, limits)

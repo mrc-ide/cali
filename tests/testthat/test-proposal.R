@@ -51,4 +51,13 @@ test_that("Proposal works", {
     proposal(input, limits, "decrease", 500),
     limits[1]
   )
+  
+  expect_error(
+    proposal(-1, limits, "decrease", 500),
+    "Current eir outside of limits"
+  )
+  expect_error(
+    proposal(101, limits, "decrease", 500),
+    "Current eir outside of limits"
+  )
 })

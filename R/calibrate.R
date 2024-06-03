@@ -28,7 +28,8 @@ calibrate <- function(parameters, target, summary_function, eq_prevalence,
     target_pfpr = eq_prevalence,
     ft = eq_ft
   )
-  
+  eir[1] <- max(eir_limits[1], min(eir[1], eir_limits[2]))
+
   # Ensure the starting EIR is valid and obtain objective evaluation
   min_eir <- 0
   attempts <- 0

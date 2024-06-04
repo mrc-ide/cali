@@ -62,13 +62,13 @@ calibrate <- function(parameters, target, summary_function, eq_prevalence,
         message("Running with new population size: ", parameters$human_population, "\n")
       } else {
         parameters$human_population <- human_population[1]
+        min_eir <- eir[1]
         eir[1] <- proposal(
           current_eir = eir[1],
           limits = eir_limits,
           direction = "increase",
           step = 2
         )
-        min_eir <- eir[1]
       }
     }
     if(attempts > max_attempts){

@@ -111,6 +111,11 @@ calibrate <- function(parameters, target, summary_function, eq_prevalence,
         eir[1] <- eir[2]
         objective[1] <- objective[2]
       }
+    } else {
+      if(direction == "decrease"){
+        eir_limits[1] <- eir[2]
+        direction <- "increase"
+      }
     }
     attempts <- attempts + 1
     if(attempts > max_attempts){

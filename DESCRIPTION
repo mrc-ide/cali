@@ -1,6 +1,6 @@
 Package: cali
 Title: Good vibes and model calibration
-Version: 1.0.7
+Version: 1.0.8
 Authors@R: c(
     person("Pete", "Winskill", email = "p.winskill@imperial.ac.uk", role = c("aut", "cre"))
     )

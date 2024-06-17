@@ -17,7 +17,7 @@ check_elimination <- function(output, target){
 linear_interpolate <- function(eir, objective){
   eir <- sort(eir)
   objective <- sort(objective)
-  if(objective[1] == objective[2]){
+  if(objective[1] == objective[2] | diff(sign(objective)) == 0){
     return(mean(eir, na.rm = TRUE))
   }
   b <- (eir[2] - eir[1]) / (objective[2] - objective[1])

@@ -39,4 +39,12 @@ test_that("Elimination check works", {
     mean(1:2)
   )
   
+  expect_equal(
+    linear_interpolate(1:2, c(2, 1)),
+    1.5
+  )
+  expect_equal(
+    linear_interpolate(1:2, c(-2, -1)),
+    1.5
+  )
 })

@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# cali <img src="man/figures/cali_hex.png" align="right" width=30% height=30% />
+# cali <img src="man/figures/Cali.png" align="right" width=30% height=30% />
 
 <!-- badges: start -->
 

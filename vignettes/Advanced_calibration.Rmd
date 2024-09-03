@@ -26,7 +26,7 @@ produce a vector of annual average estimates of prevalence in 2-10 year olds:
 ```{r}
 annual_pfpr_summary <- function(x){
   year <- ceiling(x$timestep / 365)
-  pfpr <- x$n_detect_730_3650 / x$n_730_3650
+  pfpr <- x$n_detect_lm_730_3650  / x$n_730_3650
   tapply(pfpr, year, mean)
 }
 ```
@@ -59,7 +59,7 @@ out <- calibrate(
 parameters$human_population <- 5000
 parameters <- set_equilibrium(parameters, init_EIR = out)
 raw <- run_simulation(parameters$timesteps + 100, parameters = parameters)
-raw$pfpr <- raw$n_detect_730_3650 / raw$n_730_3650
+raw$pfpr <- raw$n_detect_lm_730_3650  / raw$n_730_3650
 
 ggplot() +
   geom_point(aes(x = 365 * (0:2 + 0.5), y = target), col = "dodgerblue", size = 4) + 
@@ -120,7 +120,7 @@ weighted_target <- target * weights
 
 weighted_annual_pfpr_summary <- function(x, w = weights){
   year <- ceiling(x$timestep / 365)
-  pfpr <- x$n_detect_730_3650 / x$n_730_3650
+  pfpr <- x$n_detect_lm_730_3650  / x$n_730_3650
   tapply(pfpr, year, mean) * w
 }
 
@@ -147,7 +147,7 @@ out <- calibrate(
 parameters$human_population <- 5000
 parameters <- set_equilibrium(parameters, init_EIR = out)
 raw <- run_simulation(parameters$timesteps + 100, parameters = parameters)
-raw$pfpr <- raw$n_detect_730_3650 / raw$n_730_3650
+raw$pfpr <- raw$n_detect_lm_730_3650  / raw$n_730_3650
 
 ggplot() +
   geom_point(aes(x = 365 * (0:2 + 0.5), y = target), col = "dodgerblue", size = 4) + 

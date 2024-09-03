@@ -65,7 +65,7 @@ Ok, we've calibrated. Lets run the calibrated model and see how we did.
 parameters$human_population <- 5000
 parameters <- set_equilibrium(parameters, init_EIR = out)
 raw <- run_simulation(parameters$timesteps + 100, parameters = parameters)
-pfpr <- raw$n_detect_730_3650 / raw$n_730_3650
+pfpr <- raw$n_detect_lm_730_3650  / raw$n_730_3650
 
 pd <- data.frame(time = 1:(parameters$timesteps + 100), pfpr = pfpr)
 

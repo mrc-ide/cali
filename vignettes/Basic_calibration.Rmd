@@ -43,7 +43,17 @@ parameters <- get_parameters()
 parameters$timesteps <- 365 * 3
 ```
 
-Now time for the calibration. Here we set the tolerance to 0.005. This means that
+First, let's run a sense check that our summary function works!
+```{r}
+run_simulation(
+  timesteps = parameters$timesteps,
+  parameters = parameters
+) |>
+  summary_mean_pfpr_2_10()
+```
+
+Looks good! The summary produces a prevalence summary in the same format as our
+target. Now time for the calibration. Here we set the tolerance to 0.005. This means that
 the distance between each target value and model output prevalence needs to be <0.5%. The
 tolerance is specified in the unit of the target variable. We also cheat a bit here
 and put a tight bound on the EIR to search to help speed up this code.
@@ -65,7 +75,7 @@ Ok, we've calibrated. Lets run the calibrated model and see how we did.
 parameters$human_population <- 5000
 parameters <- set_equilibrium(parameters, init_EIR = out)
 raw <- run_simulation(parameters$timesteps + 100, parameters = parameters)
-pfpr <- raw$n_detect_lm_730_3650  / raw$n_730_3650
+pfpr <- raw$n_detect_lm_730_3650  / raw$n_age_730_3650
 
 pd <- data.frame(time = 1:(parameters$timesteps + 100), pfpr = pfpr)
 
@@ -85,8 +95,3 @@ so any trends in targets over time would need to be captured by other aspects of
 the simulation set up - for example intervention coverage. Don't expect to be able to
 match all data, you'll never match a trend of increasing prevalence over time if
 you model run has increasing intervention coverage over time too!
-
-If you are struggling to get the calibrate function to work, try checking
-that your `summary_function` works. The easiest way to do this is to run a single
-model run with the same parameters and then run your `summary_function()` on the output.
-

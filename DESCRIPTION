@@ -1,6 +1,6 @@
 Package: cali
 Title: Good vibes and model calibration
-Version: 0.2.3
+Version: 1.0.8
 Authors@R: c(
     person("Pete", "Winskill", email = "p.winskill@imperial.ac.uk", role = c("aut", "cre"))
     )
@@ -9,11 +9,13 @@ Description: Cali is a package to help calibrate malariasimulation model runs.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Remotes: 
-    mrc-ide/malariasimulation
+    mrc-ide/malariasimulation,
+    mrc-ide/malariaEquilibrium
 Imports:
-    malariasimulation (>= 1.4.3)
+    malariasimulation (>= 1.4.3),
+    malariaEquilibrium
 Suggests: 
   ggplot2,
   rmarkdown,

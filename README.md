@@ -11,6 +11,7 @@ public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostat
 [![R-CMD-check](https://github.com/mrc-ide/cali/workflows/R-CMD-check/badge.svg)](https://github.com/mrc-ide/cali/actions)
 [![Coverage
 status](https://codecov.io/gh/mrc-ide/cali/branch/main/graph/badge.svg)](https://codecov.io/github/mrc-ide/cali)
+[![R-CMD-check](https://github.com/mrc-ide/cali/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mrc-ide/cali/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 Use cali to calibrate

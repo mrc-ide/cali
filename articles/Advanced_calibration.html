@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cali</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,13 +69,13 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">malariasimulation</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
 <p>We’ve seen how to perform a very simple calibration. Here we will
-look some more advanced options. To start with lets define a new summary
+look at more advanced options. To start with lets define a new summary
 function, this one will produce a vector of annual average estimates of
 prevalence in 2-10 year olds:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">annual_pfpr_summary</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="va">year</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">timestep</span> <span class="op">/</span> <span class="fl">365</span><span class="op">)</span></span>
-<span>  <span class="va">pfpr</span> <span class="op">&lt;-</span> <span class="va">x</span><span class="op">$</span><span class="va">n_detect_730_3650</span> <span class="op">/</span> <span class="va">x</span><span class="op">$</span><span class="va">n_730_3650</span></span>
+<span>  <span class="va">pfpr</span> <span class="op">&lt;-</span> <span class="va">x</span><span class="op">$</span><span class="va">n_detect_lm_730_3650</span>  <span class="op">/</span> <span class="va">x</span><span class="op">$</span><span class="va">n_age_730_3650</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">pfpr</span>, <span class="va">year</span>, <span class="va">mean</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We can use this function to calibrate against multiple years of PfPr
@@ -83,135 +83,262 @@ estimates:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">target</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/get_parameters.html" class="external-link">get_parameters</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>human_population <span class="op">=</span> <span class="fl">5000</span>, individual_mosquitoes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/get_parameters.html" class="external-link">get_parameters</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/set_bednets.html" class="external-link">set_bednets</a></span><span class="op">(</span></span>
 <span>    timesteps <span class="op">=</span> <span class="fl">365</span> <span class="op">*</span> <span class="fl">0</span><span class="op">:</span><span class="fl">2</span>,</span>
 <span>    coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span><span class="op">)</span>,</span>
 <span>    retention <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="fl">365</span>,</span>
-<span>    dn0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0.53</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,</span>
-<span>    rn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0.56</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,</span>
-<span>    rnm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0.24</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,</span>
+<span>    dn0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0.53</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    rn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0.56</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    rnm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0.24</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>    gamman <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2.64</span> <span class="op">*</span> <span class="fl">365</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="va">parameters</span><span class="op">$</span><span class="va">timesteps</span> <span class="op">&lt;-</span> <span class="fl">365</span> <span class="op">*</span> <span class="fl">3</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate.html">calibrate</a></span><span class="op">(</span>parameters <span class="op">=</span> <span class="va">parameters</span>,</span>
-<span>                 target <span class="op">=</span> <span class="va">target</span>,</span>
-<span>                 summary_function <span class="op">=</span> <span class="va">annual_pfpr_summary</span>,</span>
-<span>                 tolerance <span class="op">=</span> <span class="fl">0.025</span>, </span>
-<span>                 low <span class="op">=</span> <span class="fl">4</span>, high <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate.html">calibrate</a></span><span class="op">(</span></span>
+<span>  parameters <span class="op">=</span> <span class="va">parameters</span>,</span>
+<span>  target <span class="op">=</span> <span class="va">target</span>,</span>
+<span>  summary_function <span class="op">=</span> <span class="va">annual_pfpr_summary</span>,</span>
+<span>  eq_prevalence <span class="op">=</span> <span class="va">target</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Initialising EIR</span></span>
+<span><span class="co">#&gt; Slice sampling EIR, side 1</span></span>
+<span><span class="co">#&gt; Attempt 1 of 10</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Trying EIR: 4</span></span>
-<span><span class="co">#&gt;                           1        2        3</span></span>
-<span><span class="co">#&gt; model_output         0.2926  0.19822  0.09221</span></span>
-<span><span class="co">#&gt; target               0.3000  0.20000  0.10000</span></span>
-<span><span class="co">#&gt; difference          -0.0074 -0.00178 -0.00779</span></span>
-<span><span class="co">#&gt; weighted_difference -0.0074 -0.00178 -0.00779</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Sum squared weighted difference: -0.005658</span></span>
-<span><span class="co">#&gt; Mean absolute difference &lt; tolerance</span></span>
+<span><span class="co">#&gt;  Current   Target</span></span>
+<span><span class="co">#&gt; --------  -------</span></span>
+<span><span class="co">#&gt;     0.32      0.3</span></span>
+<span><span class="co">#&gt;     0.24      0.2</span></span>
+<span><span class="co">#&gt;     0.11      0.1</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Trying EIR: 6</span></span>
-<span><span class="co">#&gt;                          1      2      3</span></span>
-<span><span class="co">#&gt; model_output        0.3385 0.2448 0.1283</span></span>
-<span><span class="co">#&gt; target              0.3000 0.2000 0.1000</span></span>
-<span><span class="co">#&gt; difference          0.0385 0.0448 0.0283</span></span>
-<span><span class="co">#&gt; weighted_difference 0.0385 0.0448 0.0283</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Sum squared weighted difference: 0.037194</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Trying EIR: 4</span></span>
-<span><span class="co">#&gt;                           1       2        3</span></span>
-<span><span class="co">#&gt; model_output         0.2663  0.1821  0.09142</span></span>
-<span><span class="co">#&gt; target               0.3000  0.2000  0.10000</span></span>
-<span><span class="co">#&gt; difference          -0.0337 -0.0179 -0.00858</span></span>
-<span><span class="co">#&gt; weighted_difference -0.0337 -0.0179 -0.00858</span></span>
+<span><span class="co">#&gt;  EIR   Objective</span></span>
+<span><span class="co">#&gt; ----  ----------</span></span>
+<span><span class="co">#&gt;  4.4       0.065</span></span>
+<span><span class="co">#&gt;  0.0          NA</span></span>
+<span><span class="co">#&gt; Slice sampling EIR, side 2</span></span>
+<span><span class="co">#&gt; Attempt 2 of 10</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Sum squared weighted difference: -0.020047</span></span>
-<span><span class="co">#&gt; Mean absolute difference &lt; tolerance</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Current   Target</span></span>
+<span><span class="co">#&gt; --------  -------</span></span>
+<span><span class="co">#&gt;    0.200      0.3</span></span>
+<span><span class="co">#&gt;    0.130      0.2</span></span>
+<span><span class="co">#&gt;    0.075      0.1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  EIR   Objective</span></span>
+<span><span class="co">#&gt; ----  ----------</span></span>
+<span><span class="co">#&gt;  4.4       0.065</span></span>
+<span><span class="co">#&gt;  2.7      -0.200</span></span>
+<span><span class="co">#&gt; Success</span></span>
 <span></span>
+<span><span class="va">parameters</span><span class="op">$</span><span class="va">human_population</span> <span class="op">&lt;-</span> <span class="fl">5000</span></span>
 <span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/set_equilibrium.html" class="external-link">set_equilibrium</a></span><span class="op">(</span><span class="va">parameters</span>, init_EIR <span class="op">=</span> <span class="va">out</span><span class="op">)</span></span>
 <span><span class="va">raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/run_simulation.html" class="external-link">run_simulation</a></span><span class="op">(</span><span class="va">parameters</span><span class="op">$</span><span class="va">timesteps</span> <span class="op">+</span> <span class="fl">100</span>, parameters <span class="op">=</span> <span class="va">parameters</span><span class="op">)</span></span>
-<span><span class="va">raw</span><span class="op">$</span><span class="va">pfpr</span> <span class="op">&lt;-</span> <span class="va">raw</span><span class="op">$</span><span class="va">n_detect_730_3650</span> <span class="op">/</span> <span class="va">raw</span><span class="op">$</span><span class="va">n_730_3650</span></span>
+<span><span class="va">raw</span><span class="op">$</span><span class="va">pfpr</span> <span class="op">&lt;-</span> <span class="va">raw</span><span class="op">$</span><span class="va">n_detect_lm_730_3650</span>  <span class="op">/</span> <span class="va">raw</span><span class="op">$</span><span class="va">n_age_730_3650</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">365</span> <span class="op">*</span> <span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">0.5</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">target</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"dodgerblue"</span>, size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">raw</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span>, y <span class="op">=</span> <span class="va">pfpr</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"deeppink"</span>, size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">raw</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span>, y <span class="op">=</span> <span class="va">pfpr</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"deeppink"</span>, linewidth <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Please use `linewidth` instead.</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">generated.</span></span></span></code></pre></div>
-<p><img src="Advanced_calibration_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
-<p>There may be a situation where there is more evidence to support some
-specific target data over other. In this situation we can supply weights
-to bias our fitting more towards or away from certain points.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">target</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/get_parameters.html" class="external-link">get_parameters</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>human_population <span class="op">=</span> <span class="fl">5000</span>, individual_mosquitoes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/set_bednets.html" class="external-link">set_bednets</a></span><span class="op">(</span></span>
-<span>    timesteps <span class="op">=</span> <span class="fl">365</span> <span class="op">*</span> <span class="fl">0</span><span class="op">:</span><span class="fl">2</span>,</span>
-<span>    coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span><span class="op">)</span>,</span>
-<span>    retention <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="fl">365</span>,</span>
-<span>    dn0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0.53</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,</span>
-<span>    rn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0.56</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,</span>
-<span>    rnm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0.24</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,</span>
-<span>    gamman <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2.64</span> <span class="op">*</span> <span class="fl">365</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="va">parameters</span><span class="op">$</span><span class="va">timesteps</span> <span class="op">&lt;-</span> <span class="fl">365</span> <span class="op">*</span> <span class="fl">3</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate.html">calibrate</a></span><span class="op">(</span>parameters <span class="op">=</span> <span class="va">parameters</span>,</span>
-<span>                 target <span class="op">=</span> <span class="va">target</span>,</span>
-<span>                 summary_function <span class="op">=</span> <span class="va">annual_pfpr_summary</span>,</span>
-<span>                 tolerance <span class="op">=</span> <span class="fl">0.025</span>, </span>
-<span>                 low <span class="op">=</span> <span class="fl">4</span>, high <span class="op">=</span> <span class="fl">6</span>,</span>
-<span>                 weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Trying EIR: 4</span></span>
-<span><span class="co">#&gt;                           1        2        3</span></span>
-<span><span class="co">#&gt; model_output         0.2926  0.19822  0.09221</span></span>
-<span><span class="co">#&gt; target               0.5000  0.20000  0.10000</span></span>
-<span><span class="co">#&gt; difference          -0.2074 -0.00178 -0.00779</span></span>
-<span><span class="co">#&gt; weighted_difference -0.0207 -0.00178 -0.00779</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Sum squared weighted difference: -0.010105</span></span>
-<span><span class="co">#&gt; Mean absolute difference &lt; tolerance</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Trying EIR: 6</span></span>
-<span><span class="co">#&gt;                           1      2      3</span></span>
-<span><span class="co">#&gt; model_output         0.3385 0.2448 0.1283</span></span>
-<span><span class="co">#&gt; target               0.5000 0.2000 0.1000</span></span>
-<span><span class="co">#&gt; difference          -0.1615 0.0448 0.0283</span></span>
-<span><span class="co">#&gt; weighted_difference -0.0162 0.0448 0.0283</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Sum squared weighted difference: 0.018984</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Trying EIR: 4</span></span>
-<span><span class="co">#&gt;                           1       2        3</span></span>
-<span><span class="co">#&gt; model_output         0.2663  0.1821  0.09142</span></span>
-<span><span class="co">#&gt; target               0.5000  0.2000  0.10000</span></span>
-<span><span class="co">#&gt; difference          -0.2337 -0.0179 -0.00858</span></span>
-<span><span class="co">#&gt; weighted_difference -0.0234 -0.0179 -0.00858</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Sum squared weighted difference: -0.016617</span></span>
-<span><span class="co">#&gt; Mean absolute difference &lt; tolerance</span></span>
-<span></span>
-<span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/set_equilibrium.html" class="external-link">set_equilibrium</a></span><span class="op">(</span><span class="va">parameters</span>, init_EIR <span class="op">=</span> <span class="va">out</span><span class="op">)</span></span>
-<span><span class="va">raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/run_simulation.html" class="external-link">run_simulation</a></span><span class="op">(</span><span class="va">parameters</span><span class="op">$</span><span class="va">timesteps</span> <span class="op">+</span> <span class="fl">100</span>, parameters <span class="op">=</span> <span class="va">parameters</span><span class="op">)</span></span>
-<span><span class="va">raw</span><span class="op">$</span><span class="va">pfpr</span> <span class="op">&lt;-</span> <span class="va">raw</span><span class="op">$</span><span class="va">n_detect_730_3650</span> <span class="op">/</span> <span class="va">raw</span><span class="op">$</span><span class="va">n_730_3650</span></span>
-<span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">365</span> <span class="op">*</span> <span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">0.5</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">target</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"dodgerblue"</span>, size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">raw</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span>, y <span class="op">=</span> <span class="va">pfpr</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"deeppink"</span>, size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">italic</span><span class="op">(</span><span class="va">Pf</span><span class="op">)</span><span class="op">*</span><span class="va">Pr</span><span class="op">[</span><span class="fl">2</span><span class="op">-</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Time"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Advanced_calibration_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
-  </main>
+<p><img src="Advanced_calibration_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<div class="section level2">
+<h2 id="population-size">Population size<a class="anchor" aria-label="anchor" href="#population-size"></a>
+</h2>
+<p>There is no single correct answer to the question “what modelled
+population size should I use?”. In our pursuit of efficiency during the
+calibration process, it is our preference to begin with a modestly sized
+modelled population. This approach, however, requires a balance: the
+population must be sufficiently large to ensure that the level of
+stochastic noise remains within acceptable bounds and avoid unwanted
+elimination due to stochastic fade-out. If unwanted elimination occurs
+(where any output = 0 and taregt != 0), the algoritm will first increase
+the human population size to the subsequent larger value specified in
+the <code>human_population</code> argument.</p>
+<p>You must be happy with the level of stochastic in a run with the
+smallest values in the <code>human_popualation</code> argument.</p>
+<p>We can see this occuring below:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Define target, here a prevalence measures:</span></span>
+<span><span class="va">target</span> <span class="op">&lt;-</span> <span class="fl">0.001</span></span>
+<span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/get_parameters.html" class="external-link">get_parameters</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">parameters</span><span class="op">$</span><span class="va">timesteps</span> <span class="op">&lt;-</span> <span class="fl">365</span> <span class="op">*</span> <span class="fl">3</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate.html">calibrate</a></span><span class="op">(</span></span>
+<span>  parameters <span class="op">=</span> <span class="va">parameters</span>,</span>
+<span>  target <span class="op">=</span> <span class="va">target</span>,</span>
+<span>  summary_function <span class="op">=</span> <span class="va">summary_mean_pfpr_2_10</span>,</span>
+<span>  eq_prevalence <span class="op">=</span> <span class="va">target</span>,</span>
+<span>  human_population <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">1000</span>, <span class="fl">10000</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Initialising EIR</span></span>
+<span><span class="co">#&gt; Slice sampling EIR, side 1</span></span>
+<span><span class="co">#&gt; Attempt 1 of 10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Current   Target</span></span>
+<span><span class="co">#&gt; --------  -------</span></span>
+<span><span class="co">#&gt;        0    0.001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     EIR   Objective</span></span>
+<span><span class="co">#&gt; -------  ----------</span></span>
+<span><span class="co">#&gt;  0.0055          NA</span></span>
+<span><span class="co">#&gt;  0.0000          NA</span></span>
+<span><span class="co">#&gt; Increasing human population due to elimination</span></span>
+<span><span class="co">#&gt; Running with new population size: 1000</span></span>
+<span><span class="co">#&gt; Attempt 2 of 10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Current   Target</span></span>
+<span><span class="co">#&gt; --------  -------</span></span>
+<span><span class="co">#&gt;   0.0029    0.001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     EIR   Objective</span></span>
+<span><span class="co">#&gt; -------  ----------</span></span>
+<span><span class="co">#&gt;  0.0055      0.0019</span></span>
+<span><span class="co">#&gt;  0.0000          NA</span></span>
+<span><span class="co">#&gt; Slice sampling EIR, side 2</span></span>
+<span><span class="co">#&gt; Attempt 3 of 10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Current   Target</span></span>
+<span><span class="co">#&gt; --------  -------</span></span>
+<span><span class="co">#&gt;  5.8e-05    0.001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     EIR   Objective</span></span>
+<span><span class="co">#&gt; -------  ----------</span></span>
+<span><span class="co">#&gt;  0.0055     0.00190</span></span>
+<span><span class="co">#&gt;  0.0034    -0.00094</span></span>
+<span><span class="co">#&gt; Success</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="eir-initialisation">EIR initialisation<a class="anchor" aria-label="anchor" href="#eir-initialisation"></a>
+</h2>
+<p>To provide a reasonable starting guess for the calibration, we use
+the malaria model equilibrium solution to match to a baseline PfPr
+<code>eq_prevalence</code> given a level of treatment coverage
+<code>eq_ft</code>. A good initialised EIR will mean that the algorithm
+converges more quickly, but isn’t necessary. If you don’t know
+<code>eq_prevalence</code> or <code>eq_ft</code>, try with a reasonable
+guess.</p>
+</div>
+<div class="section level2">
+<h2 id="weighting-target-values">Weighting target values<a class="anchor" aria-label="anchor" href="#weighting-target-values"></a>
+</h2>
+<p>There may be a situation where there is more evidence to support some
+specific target data over other. In this situation we can weight our
+target and summary function to bias our fitting more towards or away
+from certain points.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">target</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="va">weights</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">weighted_target</span> <span class="op">&lt;-</span> <span class="va">target</span> <span class="op">*</span> <span class="va">weights</span></span>
+<span></span>
+<span><span class="va">weighted_annual_pfpr_summary</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">w</span> <span class="op">=</span> <span class="va">weights</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">year</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">timestep</span> <span class="op">/</span> <span class="fl">365</span><span class="op">)</span></span>
+<span>  <span class="va">pfpr</span> <span class="op">&lt;-</span> <span class="va">x</span><span class="op">$</span><span class="va">n_detect_lm_730_3650</span>  <span class="op">/</span> <span class="va">x</span><span class="op">$</span><span class="va">n_age_730_3650</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">pfpr</span>, <span class="va">year</span>, <span class="va">mean</span><span class="op">)</span> <span class="op">*</span> <span class="va">w</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/get_parameters.html" class="external-link">get_parameters</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/set_bednets.html" class="external-link">set_bednets</a></span><span class="op">(</span></span>
+<span>    timesteps <span class="op">=</span> <span class="fl">365</span> <span class="op">*</span> <span class="fl">0</span><span class="op">:</span><span class="fl">2</span>,</span>
+<span>    coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span><span class="op">)</span>,</span>
+<span>    retention <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="fl">365</span>,</span>
+<span>    dn0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0.53</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    rn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0.56</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    rnm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0.24</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    gamman <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2.64</span> <span class="op">*</span> <span class="fl">365</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">parameters</span><span class="op">$</span><span class="va">timesteps</span> <span class="op">&lt;-</span> <span class="fl">365</span> <span class="op">*</span> <span class="fl">3</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibrate.html">calibrate</a></span><span class="op">(</span></span>
+<span>  parameters <span class="op">=</span> <span class="va">parameters</span>,</span>
+<span>  target <span class="op">=</span> <span class="va">weighted_target</span>,</span>
+<span>  summary_function <span class="op">=</span> <span class="va">weighted_annual_pfpr_summary</span>,</span>
+<span>  eq_prevalence <span class="op">=</span> <span class="va">target</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Initialising EIR</span></span>
+<span><span class="co">#&gt; Slice sampling EIR, side 1</span></span>
+<span><span class="co">#&gt; Attempt 1 of 10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Current   Target</span></span>
+<span><span class="co">#&gt; --------  -------</span></span>
+<span><span class="co">#&gt;     0.05     0.05</span></span>
+<span><span class="co">#&gt;     0.35     0.20</span></span>
+<span><span class="co">#&gt;     0.18     0.10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  EIR   Objective</span></span>
+<span><span class="co">#&gt; ----  ----------</span></span>
+<span><span class="co">#&gt;   15        0.24</span></span>
+<span><span class="co">#&gt;    0          NA</span></span>
+<span><span class="co">#&gt; Slice sampling EIR, side 2</span></span>
+<span><span class="co">#&gt; Attempt 2 of 10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Current   Target</span></span>
+<span><span class="co">#&gt; --------  -------</span></span>
+<span><span class="co">#&gt;    0.037     0.05</span></span>
+<span><span class="co">#&gt;    0.280     0.20</span></span>
+<span><span class="co">#&gt;    0.120     0.10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  EIR   Objective</span></span>
+<span><span class="co">#&gt; ----  ----------</span></span>
+<span><span class="co">#&gt;   15        0.24</span></span>
+<span><span class="co">#&gt;    9        0.09</span></span>
+<span><span class="co">#&gt; Attempt 3 of 10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Current   Target</span></span>
+<span><span class="co">#&gt; --------  -------</span></span>
+<span><span class="co">#&gt;    0.033     0.05</span></span>
+<span><span class="co">#&gt;    0.190     0.20</span></span>
+<span><span class="co">#&gt;    0.090     0.10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  EIR   Objective</span></span>
+<span><span class="co">#&gt; ----  ----------</span></span>
+<span><span class="co">#&gt;  9.0       0.090</span></span>
+<span><span class="co">#&gt;  5.5      -0.039</span></span>
+<span><span class="co">#&gt; Success</span></span>
+<span></span>
+<span><span class="va">parameters</span><span class="op">$</span><span class="va">human_population</span> <span class="op">&lt;-</span> <span class="fl">5000</span></span>
+<span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/set_equilibrium.html" class="external-link">set_equilibrium</a></span><span class="op">(</span><span class="va">parameters</span>, init_EIR <span class="op">=</span> <span class="va">out</span><span class="op">)</span></span>
+<span><span class="va">raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/run_simulation.html" class="external-link">run_simulation</a></span><span class="op">(</span><span class="va">parameters</span><span class="op">$</span><span class="va">timesteps</span> <span class="op">+</span> <span class="fl">100</span>, parameters <span class="op">=</span> <span class="va">parameters</span><span class="op">)</span></span>
+<span><span class="va">raw</span><span class="op">$</span><span class="va">pfpr</span> <span class="op">&lt;-</span> <span class="va">raw</span><span class="op">$</span><span class="va">n_detect_lm_730_3650</span>  <span class="op">/</span> <span class="va">raw</span><span class="op">$</span><span class="va">n_age_730_3650</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">365</span> <span class="op">*</span> <span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">0.5</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">target</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"dodgerblue"</span>, size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">raw</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span>, y <span class="op">=</span> <span class="va">pfpr</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"deeppink"</span>, linewidth <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">italic</span><span class="op">(</span><span class="va">Pf</span><span class="op">)</span><span class="op">*</span><span class="va">Pr</span><span class="op">[</span><span class="fl">2</span><span class="op">-</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Time"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Advanced_calibration_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
@@ -221,7 +348,7 @@ to bias our fitting more towards or away from certain points.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>

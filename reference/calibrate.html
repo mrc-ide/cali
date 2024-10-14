@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cali</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,15 +43,14 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">calibrate</span><span class="op">(</span></span>
+<span>  <span class="va">parameters</span>,</span>
 <span>  <span class="va">target</span>,</span>
 <span>  <span class="va">summary_function</span>,</span>
-<span>  <span class="va">parameters</span>,</span>
-<span>  <span class="va">tolerance</span>,</span>
-<span>  weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">target</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  elimination_check <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  maxiter <span class="op">=</span> <span class="fl">20</span>,</span>
-<span>  low <span class="op">=</span> <span class="fl">0.001</span>,</span>
-<span>  high <span class="op">=</span> <span class="fl">2000</span></span>
+<span>  <span class="va">eq_prevalence</span>,</span>
+<span>  eq_ft <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  human_population <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">10000</span>, <span class="fl">1e+05</span><span class="op">)</span>,</span>
+<span>  eir_limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1500</span><span class="op">)</span>,</span>
+<span>  max_attempts <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -59,49 +58,41 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-target">target<a class="anchor" aria-label="anchor" href="#arg-target"></a></dt>
+<dl><dt id="arg-parameters">parameters<a class="anchor" aria-label="anchor" href="#arg-parameters"></a></dt>
+<dd><p>Malariasimulation model parameter list</p></dd>
+
+
+<dt id="arg-target">target<a class="anchor" aria-label="anchor" href="#arg-target"></a></dt>
 <dd><p>Values of target variable to calibrate to.</p></dd>
 
 
 <dt id="arg-summary-function">summary_function<a class="anchor" aria-label="anchor" href="#arg-summary-function"></a></dt>
-<dd><p>A function that take the raw model output as an argument and
-produces a vector of the target variable.</p></dd>
+<dd><p>A function that take the raw model output as an</p></dd>
 
 
-<dt id="arg-parameters">parameters<a class="anchor" aria-label="anchor" href="#arg-parameters"></a></dt>
-<dd><p>Other malariasimulation model parameters</p></dd>
+<dt id="arg-eq-prevalence">eq_prevalence<a class="anchor" aria-label="anchor" href="#arg-eq-prevalence"></a></dt>
+<dd><p>Estimate of baseline prevalence (to inform EIR initialisation)</p></dd>
 
 
-<dt id="arg-tolerance">tolerance<a class="anchor" aria-label="anchor" href="#arg-tolerance"></a></dt>
-<dd><p>The routine will complete when the average absolute weighted difference between the target variable
-and the target values falls below this value. Tolerance is specified in
-the units of the target variable (e.g. if my target variable is prevalence, and my tolerance is 0.05,
-then the average absolute sum of the weighted difference between the target variable and the target values must be &lt;5% for the routine to succeed).</p></dd>
+<dt id="arg-eq-ft">eq_ft<a class="anchor" aria-label="anchor" href="#arg-eq-ft"></a></dt>
+<dd><p>Estimate of baseline treatment coverage (to inform EIR initialisation)</p></dd>
 
 
-<dt id="arg-weights">weights<a class="anchor" aria-label="anchor" href="#arg-weights"></a></dt>
-<dd><p>A numerical vector of weights the same length as target giving the weights to use for elements of target.</p></dd>
+<dt id="arg-human-population">human_population<a class="anchor" aria-label="anchor" href="#arg-human-population"></a></dt>
+<dd><p>Vector of increasing population sizes.</p></dd>
 
 
-<dt id="arg-elimination-check">elimination_check<a class="anchor" aria-label="anchor" href="#arg-elimination-check"></a></dt>
-<dd><p>Check transmission is maintained for all target points with ongoing transmission before exiting early.</p></dd>
+<dt id="arg-eir-limits">eir_limits<a class="anchor" aria-label="anchor" href="#arg-eir-limits"></a></dt>
+<dd><p>Limits of EIR</p></dd>
 
 
-<dt id="arg-maxiter">maxiter<a class="anchor" aria-label="anchor" href="#arg-maxiter"></a></dt>
-<dd><p>Maximum iterations. If stopping criteria have not been met by <code>maxiter</code>, the current best estimate will be returned</p></dd>
-
-
-<dt id="arg-low">low<a class="anchor" aria-label="anchor" href="#arg-low"></a></dt>
-<dd><p>Lower boundof EIRs</p></dd>
-
-
-<dt id="arg-high">high<a class="anchor" aria-label="anchor" href="#arg-high"></a></dt>
-<dd><p>Upper bound of EIRs</p></dd>
+<dt id="arg-max-attempts">max_attempts<a class="anchor" aria-label="anchor" href="#arg-max-attempts"></a></dt>
+<dd><p>Maximum number of calibration attempts (model runs)</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Uniroot output</p>
+    <p>EIR estimate</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -113,7 +104,7 @@ then the average absolute sum of the weighted difference between the target vari
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer></div>

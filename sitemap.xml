@@ -7,8 +7,18 @@
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
 <url><loc>/reference/calibrate.html</loc></url>
+<url><loc>/reference/check_elimination.html</loc></url>
+<url><loc>/reference/check_fit.html</loc></url>
+<url><loc>/reference/eq_objective.html</loc></url>
+<url><loc>/reference/from_real.html</loc></url>
+<url><loc>/reference/get_eq_eir.html</loc></url>
+<url><loc>/reference/good_move.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
-<url><loc>/reference/objective.html</loc></url>
+<url><loc>/reference/linear_interpolate.html</loc></url>
+<url><loc>/reference/pfpr_2_10.html</loc></url>
+<url><loc>/reference/print_update.html</loc></url>
+<url><loc>/reference/proposal.html</loc></url>
 <url><loc>/reference/summary_mean_pfpr_2_10.html</loc></url>
+<url><loc>/reference/to_real.html</loc></url>
 </urlset>
 
